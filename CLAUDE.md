@@ -5,6 +5,51 @@ Equity research coverage of 1,735+ Taiwan-listed companies (TWSE + OTC). Each ti
 
 ---
 
+## OpenClaw / Codex Local Usage
+
+This workspace is maintained on macOS under OpenClaw with Codex-style agents, including the ChatGPT 5.5-Codex model Stan uses here.
+
+Default project path:
+
+```bash
+cd "/Users/stanchen/.openclaw/workspace/My-TW-Coverage"
+```
+
+Use the repo-local virtual environment:
+
+```bash
+source .venv/bin/activate
+python scripts/query_theme.py "CoWoS"
+```
+
+For non-interactive commands, this is also valid:
+
+```bash
+.venv/bin/python scripts/query_theme.py "CoWoS"
+```
+
+Do not use old Windows examples such as `cd "f:\My TW Coverage"` in this workspace.
+
+OpenClaw/Codex agents should treat any legacy Claude slash command as an intent, then run the equivalent local script or workflow. For example, `/discover CoPoS` means:
+
+```bash
+python scripts/query_theme.py "CoPoS" --include-bare
+```
+
+If the local database has no result, follow:
+
+```text
+WEB_RESEARCH_FALLBACK_SOP.md
+```
+
+Important local workflow:
+
+```text
+local search -> web fallback -> match_candidates.py -> research/<topic>.md -> user confirmation -> small-batch enrichment -> rebuild indexes -> audit
+```
+
+---
+
 ## Golden Rules
 
 ### 1. Wikilinks Must Be Specific Proper Nouns (MOST IMPORTANT RULE)
@@ -154,6 +199,9 @@ Pilot_Reports/{Industry}/{Ticker}_{ChineseName}.md
 | Wikilink Index | `python scripts/build_wikilink_index.py` | Rebuild WIKILINKS.md from all reports |
 | Update Valuation | `python scripts/update_valuation.py [scope]` | Refresh 估值指標 only (fast, no financials) |
 | Discover | `python scripts/discover.py "<buzzword>" [--smart] [--apply]` | Reverse search: find companies by buzzword |
+| Query Theme | `python scripts/query_theme.py "<topic>" --include-bare` | Read-only wikilink/bare-text query |
+| Match Candidates | `python scripts/match_candidates.py "3131 弘塑"` | Match web-research candidates to reports |
+| Financial SQLite | `python scripts/build_financial_sqlite.py --from-markdown` | Build local SQLite baseline from Markdown financial tables |
 | Thematic Screens | `python scripts/build_themes.py` | Generate themes/ supply chain maps |
 
 ### Scope Syntax (shared across all scripts)
@@ -165,7 +213,10 @@ Pilot_Reports/{Industry}/{Ticker}_{ChineseName}.md
 (no args)                   # ALL tickers
 ```
 
-### Slash Commands
+### Legacy Claude Code Slash Commands
+
+These are legacy Claude Code intents. In OpenClaw/Codex, interpret them as plain-language tasks and run the equivalent local scripts/SOPs.
+
 | Command | What it does |
 |---|---|
 | `/add-ticker 2330 台積電` | Generate .md + fetch financials + research & enrich |
@@ -173,6 +224,20 @@ Pilot_Reports/{Industry}/{Ticker}_{ChineseName}.md
 | `/update-valuation 2330` | Refresh 估值指標 only — fast, no financial tables |
 | `/update-enrichment 2330` | Re-research & update 業務簡介/供應鏈/客戶 (preserves financials) |
 | `/discover 液冷散熱` | Reverse search: buzzword → related companies + web research fallback |
+
+OpenClaw/Codex equivalents:
+
+```bash
+python scripts/query_theme.py "液冷散熱" --include-bare
+python scripts/discover.py "液冷散熱" --smart
+python scripts/match_candidates.py "3131 弘塑" "3583 辛耘"
+```
+
+Detailed fallback SOP:
+
+```text
+WEB_RESEARCH_FALLBACK_SOP.md
+```
 
 ### Research Queries (per ticker)
 - `[Ticker] 法說會` — investor conference transcripts

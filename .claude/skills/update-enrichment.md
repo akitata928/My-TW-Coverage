@@ -38,7 +38,9 @@ For each ticker in scope:
 Write enrichment data as a JSON file, then run:
 
 ```bash
-cd "f:\My TW Coverage" && python scripts/update_enrichment.py --data enrichment.json [scope]
+cd "/Users/stanchen/.openclaw/workspace/My-TW-Coverage"
+source .venv/bin/activate
+python scripts/update_enrichment.py --data enrichment.json [scope]
 ```
 
 Scope options: `2330`, `2330 2317`, `--batch 101`, `--sector Semiconductors`, or omit for all entries in JSON.

@@ -6,12 +6,31 @@ user_invocable: true
 
 # Discover Companies by Buzzword
 
-Find every Taiwan-listed company related to a keyword, technology, or trend. Two modes:
+Find every Taiwan-listed company related to a keyword, technology, or trend. In OpenClaw/Codex on macOS, including ChatGPT 5.5-Codex, treat this file as workflow guidance, not as a literal slash-command requirement.
 
-1. **Database search** — instant scan of all 1,733 reports for existing mentions
-2. **Web research fallback** — when no results found, research online and enrich the database
+Project path:
+
+```bash
+cd "/Users/stanchen/.openclaw/workspace/My-TW-Coverage"
+source .venv/bin/activate
+```
+
+Two modes:
+
+1. **Database search** — instant scan of local reports for existing mentions
+2. **Web research fallback** — when no results are found or data is thin, research online, verify sources, and write a research note before any enrichment
 
 ## Usage
+
+OpenClaw/Codex examples:
+
+```bash
+python scripts/query_theme.py "液冷散熱" --include-bare
+python scripts/discover.py "液冷散熱" --smart
+python scripts/query_theme.py "CoWoS"
+```
+
+Legacy Claude Code intent examples:
 
 - `/discover 液冷散熱` — find all companies mentioning liquid cooling
 - `/discover 核融合` — find companies related to nuclear fusion
@@ -25,7 +44,10 @@ Find every Taiwan-listed company related to a keyword, technology, or trend. Two
 Run the discover script to scan existing reports:
 
 ```bash
-cd "f:\My TW Coverage" && python scripts/discover.py "<BUZZWORD>"
+cd "/Users/stanchen/.openclaw/workspace/My-TW-Coverage"
+source .venv/bin/activate
+python scripts/query_theme.py "<BUZZWORD>" --include-bare
+python scripts/discover.py "<BUZZWORD>" --smart
 ```
 
 Report the results to the user: how many companies found, grouped by relationship type.
@@ -36,6 +58,19 @@ Ask the user:
 - "是否要將未標記的提及加上 [[wikilink]]？" (Apply wikilinks?)
 - If yes, run: `python scripts/discover.py "<BUZZWORD>" --apply --rebuild`
 - Report how many wikilinks were added and which files were updated.
+
+Before applying, run:
+
+```bash
+git status
+```
+
+After applying, run:
+
+```bash
+python scripts/audit_batch.py --all
+git diff --stat
+```
 
 ### Step 3: If NO Results Found (Web Research Fallback)
 
@@ -49,6 +84,10 @@ This is the key differentiator. When the database has zero mentions:
 2. **Identify companies** from search results. For each company found:
    - Verify it exists in our database (match ticker or company name to a file in Pilot_Reports/)
    - Note the relationship: supplier, manufacturer, customer, technology developer, etc.
+   - Use `match_candidates.py` before any file edits:
+     ```bash
+     python scripts/match_candidates.py "3131 弘塑" "3583 辛耘" "7734 印能科技"
+     ```
 
 3. **Present findings** to the user in a structured format:
    ```
@@ -62,7 +101,13 @@ This is the key differentiator. When the database has zero mentions:
    - ZZZZ 公司名 — 需要新增 ticker
    ```
 
-4. **Ask the user** which companies to update:
+4. **Create or update a research note first**:
+   ```text
+   research/<BUZZWORD>.md
+   ```
+   Include local search results, web sources, source confidence, matched/unmatched companies, and supply-chain roles.
+
+5. **Ask the user** which companies to update:
    - "是否要將這些公司的報告加入「<BUZZWORD>」相關描述？"
    - If yes, for each confirmed company:
      a. Read the existing ticker .md file
@@ -70,9 +115,12 @@ This is the key differentiator. When the database has zero mentions:
      c. Preserve all existing content — only ADD, don't rewrite
      d. Run wikilink normalization after writing
 
-5. **Rebuild indexes** after all updates:
+6. **Rebuild indexes** after all updates:
    ```bash
-   cd "f:\My TW Coverage" && python scripts/discover.py "<BUZZWORD>" --rebuild
+   cd "/Users/stanchen/.openclaw/workspace/My-TW-Coverage"
+   python scripts/build_wikilink_index.py
+   python scripts/build_themes.py
+   python scripts/build_network.py --min-weight 10
    ```
 
 ### Step 4: Offer to Create Theme
@@ -88,3 +136,11 @@ If the buzzword has 5+ related companies, offer:
 - VERIFY company identity matches filename before editing
 - Preserve financial tables (財務概況) — never modify them
 - Run `python scripts/audit_batch.py --all` after bulk edits to verify no quality regressions
+
+## Detailed SOP
+
+Use the fuller OpenClaw/Codex SOP here:
+
+```text
+WEB_RESEARCH_FALLBACK_SOP.md
+```

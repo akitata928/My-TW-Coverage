@@ -139,7 +139,11 @@ def build_html(nodes, edges):
 <div id="stats"></div>
 <svg></svg>
 
-<script src="https://d3js.org/d3.v7.min.js"></script>
+<script
+  src="https://d3js.org/d3.v7.min.js"
+  integrity="sha384-CjloA8y00+1SDAUkjs099PVfnY2KmDC2BZnws9kh8D/lX1s46w6EPhpXdqMfjK6i"
+  crossorigin="anonymous"
+></script>
 <script>
 const fullData = {graph_json};
 const width = window.innerWidth, height = window.innerHeight;
