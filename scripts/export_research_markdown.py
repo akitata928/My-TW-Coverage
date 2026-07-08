@@ -47,7 +47,7 @@ def clean_generated(root):
 
 def safe_filename(value, max_len=90):
     value = (value or "untitled").strip()
-    value = re.sub(r"[\\/:*?\"<>|#\[\]\n\r\t：，、；（）()]+", "_", value)
+    value = re.sub(r"[\\/:*?\"<>|#\[\]\n\r\t：，、；！？（）()]+", "_", value)
     value = re.sub(r"\s+", "_", value)
     value = re.sub(r"_+", "_", value).strip("._ ")
     return (value or "untitled")[:max_len]
