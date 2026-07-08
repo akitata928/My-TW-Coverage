@@ -145,6 +145,28 @@ python scripts/discover.py "液冷散熱" --sector Semiconductors  # Limit to sp
 
 Results show companies grouped by relationship type (core business, supply chain, customer/supplier) with context snippets. Use `--smart` to auto-filter irrelevant sectors (tech buzzwords skip banks/insurance/real estate).
 
+### Research Article Knowledge Base
+
+External research articles can be stored in a local SQLite knowledge base before
+they are reviewed and used to enrich company reports.
+
+```bash
+python scripts/import_research_article.py https://finlab.finance/blog/edge-ai-stocks
+python scripts/query_research_knowledge.py --text "邊緣 AI"
+python scripts/query_research_knowledge.py --symbol 2395
+python scripts/query_research_knowledge.py --topic NPU
+```
+
+Default DB path:
+
+```text
+data/research_knowledge.sqlite
+```
+
+This DB is intentionally separate from `Pilot_Reports/`. Use it as a staging
+area for source articles, topic tags, ticker links, and full-text search; only
+move verified findings into `research/*.md` or company reports after review.
+
 ### Generate Wikilink Network Graph
 
 Interactive D3.js force-directed graph showing wikilink co-occurrences across all tickers. Hover to highlight neighbors, search by name, adjust edge weight threshold.
