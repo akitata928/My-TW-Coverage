@@ -155,6 +155,7 @@ python scripts/import_research_article.py https://finlab.finance/blog/edge-ai-st
 python scripts/query_research_knowledge.py --text "邊緣 AI"
 python scripts/query_research_knowledge.py --symbol 2395
 python scripts/query_research_knowledge.py --topic NPU
+python scripts/export_research_markdown.py --clean
 ```
 
 Default DB path:
@@ -166,6 +167,14 @@ data/research_knowledge.sqlite
 This DB is intentionally separate from `Pilot_Reports/`. Use it as a staging
 area for source articles, topic tags, ticker links, and full-text search; only
 move verified findings into `research/*.md` or company reports after review.
+
+Markdown exports are written to `knowledge/`:
+
+```text
+knowledge/articles/  # one page per imported article
+knowledge/topics/    # one page per topic tag
+knowledge/stocks/    # one page per stock linked from articles
+```
 
 ### Generate Wikilink Network Graph
 
