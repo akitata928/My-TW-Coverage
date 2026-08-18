@@ -343,6 +343,17 @@ def unlink_generic_terms(text):
     )
 
 
+# This database's convention is a bare [[name]] that resolves to an entity note
+# of the same name; Obsidian's piped form [[path|label]] hard-codes a file path
+# into the prose, and WIKILINK_RE reads the whole "path|label" as one node name.
+_PIPED_RE = re.compile(r"\[\[([^\[\]|]+)\|([^\[\]|]+)\]\]")
+
+
+def unpipe_wikilinks(text):
+    """Reduce [[2330_台積電|台積電]] to [[台積電]] — the label is the entity."""
+    return _PIPED_RE.sub(lambda m: "[[" + m.group(2).strip() + "]]", text)
+
+
 def flatten_nested_wikilinks(text):
     """Collapse a link that swallowed another link: [[A[[B]]C]] -> [[ABC]]."""
 
@@ -364,6 +375,7 @@ def normalize_wikilinks(content):
     """
     head, sep, tail = content.partition("## 財務概況")
 
+    head = unpipe_wikilinks(head)
     head = flatten_nested_wikilinks(head)
     # Absorb before unlinking: [[散熱]]模組 must become [[散熱模組]] rather than
     # losing its brackets as a bare category word.
@@ -440,20 +452,66 @@ def build_valuation_table(v):
     return title + header_row + "\n" + sep_row + "\n" + val_row
 
 
+# Frontmatter mirrors the 業務簡介 metadata block so Obsidian's Dataview can
+# filter and sort on it. update_metadata writes both, so the two cannot drift.
+FRONTMATTER_FIELDS = ("ticker", "company", "sector", "industry",
+                      "market_cap", "enterprise_value")
+
+_BODY_METADATA = {
+    "sector": re.compile(r"\*\*板塊:\*\* *(.+)"),
+    "industry": re.compile(r"\*\*產業:\*\* *(.+)"),
+    "market_cap": re.compile(r"\*\*市值:\*\* *([\d,]+|N/A)"),
+    "enterprise_value": re.compile(r"\*\*企業價值:\*\* *([\d,]+|N/A)"),
+}
+
+_FRONTMATTER_BLOCK = re.compile(r"\A---\n.*?\n---\n", re.DOTALL)
+
+
+def _numeric(value):
+    """Dataview needs a bare number to compare on; N/A stays absent."""
+    plain = value.replace(",", "")
+    return plain if plain.isdigit() else None
+
+
+def apply_frontmatter(content, ticker, company):
+    """Insert or refresh the YAML frontmatter from the body metadata block."""
+    fields = {"ticker": f'"{ticker}"', "company": company}
+    for key, pattern in _BODY_METADATA.items():
+        match = pattern.search(content)
+        if not match:
+            continue
+        raw = match.group(1).strip()
+        value = _numeric(raw) if key.endswith(("cap", "value")) else raw
+        if value:
+            fields[key] = value
+
+    block = "---\n" + "".join(
+        f"{k}: {fields[k]}\n" for k in FRONTMATTER_FIELDS if k in fields
+    ) + "---\n"
+
+    if _FRONTMATTER_BLOCK.match(content):
+        return _FRONTMATTER_BLOCK.sub(block, content, count=1)
+    return block + content
+
+
 def update_metadata(content, market_cap, enterprise_value):
-    """Update 市值 and 企業價值 metadata in file content."""
-    if market_cap:
+    """Update 市值 and 企業價值 in the body and in the frontmatter mirror."""
+    for label, key, value in (
+        ("市值", "market_cap", market_cap),
+        ("企業價值", "enterprise_value", enterprise_value),
+    ):
+        if not value:
+            continue
         content = re.sub(
-            r"(\*\*市值:\*\*) .+?百萬台幣",
-            rf"\1 {market_cap} 百萬台幣",
+            rf"(\*\*{label}:\*\*) .+?百萬台幣",
+            rf"\1 {value} 百萬台幣",
             content,
         )
-    if enterprise_value:
-        content = re.sub(
-            r"(\*\*企業價值:\*\*) .+?百萬台幣",
-            rf"\1 {enterprise_value} 百萬台幣",
-            content,
-        )
+        numeric = _numeric(str(value))
+        if numeric:
+            content = re.sub(
+                rf"^{key}: .*$", f"{key}: {numeric}", content, count=1, flags=re.M
+            )
     return content
 
 

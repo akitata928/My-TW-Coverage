@@ -24,7 +24,8 @@ from collections import Counter
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from utils import (
     find_ticker_files, get_ticker_from_filename, parse_scope_args, setup_stdout,
-    canonical_wikilink, normalize_wikilinks, GENERIC_TERMS, WIKILINK_RE,
+    apply_frontmatter, canonical_wikilink, normalize_wikilinks,
+    GENERIC_TERMS, WIKILINK_RE,
 )
 
 
@@ -93,6 +94,7 @@ def main():
         _, company = get_ticker_from_filename(path)
         after, title_changed = normalize_title(before, ticker, company)
         after = normalize_wikilinks(after)
+        after = apply_frontmatter(after, ticker, company)
         if after == before:
             continue
 

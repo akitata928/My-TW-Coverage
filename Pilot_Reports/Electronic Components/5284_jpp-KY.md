@@ -1,3 +1,11 @@
+---
+ticker: "5284"
+company: jpp-KY
+sector: Technology
+industry: Electronic Components
+market_cap: 15206
+enterprise_value: 16113
+---
 # 5284 - [[jpp-KY]]
 
 ## 業務簡介

@@ -139,6 +139,19 @@ python scripts/normalize_reports.py --sector Semiconductors
 
 Run `python scripts/build_wikilink_index.py` afterwards so the index reflects the merges.
 
+### Make Links Clickable in Obsidian
+
+Obsidian resolves `[[name]]` by filename only, so `[[台積電]]` cannot reach
+`2330_台積電.md`. This writes one note per wikilink into `entities/`, covering
+99.9% of link occurrences. See [obsidian.md](obsidian.md) for Dataview queries
+and known limits.
+
+```bash
+python scripts/build_obsidian_vault.py               # all wikilinks
+python scripts/build_obsidian_vault.py --min-reports 2   # only linked entities
+python scripts/build_obsidian_vault.py --clean       # drop stale notes first
+```
+
 ### Rebuild Wikilink Index
 
 ```bash
@@ -201,6 +214,7 @@ These run 100% locally with Python + yfinance. No AI, no API cost.
 | Build Themes | `python scripts/build_themes.py` | Generate thematic supply chain pages |
 | Build Network | `python scripts/build_network.py` | Generate interactive D3.js graph |
 | Build Wikilink Index | `python scripts/build_wikilink_index.py` | Rebuild WIKILINKS.md |
+| Build Obsidian Vault | `python scripts/build_obsidian_vault.py` | Rebuild entities/ so every `[[link]]` resolves |
 | Normalize Wikilinks | `python scripts/normalize_reports.py [scope]` | Merge spelling variants, repair malformed links |
 
 ### Consumes Tokens — Claude Code Skills (Requires AI)
@@ -252,6 +266,7 @@ The database contains **6,095 unique wikilinks** across three categories:
 ├── WIKILINKS.md               # Browsable wikilink index (auto-generated)
 ├── task.md                    # Batch definitions and progress tracking
 ├── todo.md                    # Graph-quality debt and upgrade roadmap
+├── obsidian.md                # Using the database as an Obsidian vault
 ├── requirements.txt           # Python dependencies
 ├── README.md
 ├── scripts/
@@ -271,6 +286,7 @@ The database contains **6,095 unique wikilinks** across three categories:
 │   ├── Semiconductors/
 │   ├── Electronic Components/
 │   └── ... (99 folders)
+├── entities/                  # One note per wikilink, for Obsidian (auto-generated)
 ├── network/                   # Interactive wikilink network graph (auto-generated)
 │   ├── index.html             # D3.js visualization (open in browser)
 │   └── graph_data.json        # Raw graph data (344 nodes, 1,315 edges)

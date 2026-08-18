@@ -1,0 +1,23 @@
+---
+type: international_company
+mentions: 23
+reports: 11
+---
+
+# IKEA
+
+國際公司 · 11 份報告提及 · 共 23 次
+
+## 最常一起出現
+
+- [[群創]] — 同時出現於 2 份報告
+- [[遠東新]] — 同時出現於 2 份報告
+- [[南亞]] — 同時出現於 2 份報告
+- [[Home Depot]] — 同時出現於 2 份報告
+- [[ODM]] — 同時出現於 2 份報告
+- [[OEM]] — 同時出現於 2 份報告
+- [[Walmart]] — 同時出現於 2 份報告
+
+---
+
+*自動產生：`python scripts/build_obsidian_vault.py`。左側反向連結面板會列出所有提及此實體的報告。*

@@ -1,0 +1,26 @@
+---
+type: international_company
+mentions: 9
+reports: 3
+---
+
+# Trent XWB
+
+國際公司 · 3 份報告提及 · 共 9 次
+
+## 最常一起出現
+
+- [[AI 伺服器]] — 同時出現於 3 份報告
+- [[Airbus]] — 同時出現於 3 份報告
+- [[Rolls-Royce]] — 同時出現於 3 份報告
+- [[台灣中油]] — 同時出現於 3 份報告
+- [[Boeing]] — 同時出現於 2 份報告
+- [[CF6]] — 同時出現於 2 份報告
+- [[CFM International]] — 同時出現於 2 份報告
+- [[GE Aerospace]] — 同時出現於 2 份報告
+- [[GE90]] — 同時出現於 2 份報告
+- [[桃園航勤]] — 同時出現於 2 份報告
+
+---
+
+*自動產生：`python scripts/build_obsidian_vault.py`。左側反向連結面板會列出所有提及此實體的報告。*

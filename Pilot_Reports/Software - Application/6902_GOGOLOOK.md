@@ -1,3 +1,11 @@
+---
+ticker: "6902"
+company: GOGOLOOK
+sector: Technology
+industry: Software - Application
+market_cap: 2701
+enterprise_value: 2683
+---
 # 6902 - [[GOGOLOOK]]
 
 ## 業務簡介

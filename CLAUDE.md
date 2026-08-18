@@ -34,10 +34,10 @@ The purpose: a user searching `[[CoWoS]]` should find every company involved in 
 
 | WRONG | RIGHT |
 |---|---|
-| `[[國際農藥原廠]]` | 國際農藥原廠如 [[Syngenta]]、[[Bayer CropScience]] |
-| `[[跨國農化公司]]` | 跨國農化公司如 [[BASF]]、[[Corteva]] |
-| `[[電信營運商]]` | 電信營運商如 [[中華電信]]、[[台灣大哥大]]、[[遠傳電信]] |
-| `[[北美大型車廠]]` | 北美車廠如 [[Tesla]]、[[Ford]]、[[GM]] |
+| `[[國際農藥原廠]]` | 國際農藥原廠如 `[[Syngenta]]`、`[[Bayer CropScience]]` |
+| `[[跨國農化公司]]` | 跨國農化公司如 `[[BASF]]`、`[[Corteva]]` |
+| `[[電信營運商]]` | 電信營運商如 `[[中華電信]]`、`[[台灣大哥大]]`、`[[遠傳電信]]` |
+| `[[北美大型車廠]]` | 北美車廠如 `[[Tesla]]`、`[[Ford]]`、`[[GM]]` |
 
 **Banned in wikilinks** — generic words like: 大廠, 供應商, 客戶, 廠商, 原廠, 經銷商, 製造商, 業者, 企業, 公司 (when used as category labels, not part of a proper noun)
 

@@ -1,3 +1,11 @@
+---
+ticker: "6456"
+company: GIS-KY
+sector: Technology
+industry: Electronic Components
+market_cap: 20178
+enterprise_value: 8034
+---
 # 6456 - [[GIS-KY]]
 
 ## 業務簡介

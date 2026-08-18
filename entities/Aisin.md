@@ -1,0 +1,13 @@
+---
+type: international_company
+mentions: 7
+reports: 3
+---
+
+# Aisin
+
+國際公司 · 3 份報告提及 · 共 7 次
+
+---
+
+*自動產生：`python scripts/build_obsidian_vault.py`。左側反向連結面板會列出所有提及此實體的報告。*

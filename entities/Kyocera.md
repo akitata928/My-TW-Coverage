@@ -1,0 +1,25 @@
+---
+type: international_company
+mentions: 17
+reports: 9
+---
+
+# Kyocera
+
+國際公司 · 9 份報告提及 · 共 17 次
+
+## 最常一起出現
+
+- [[ADAS]] — 同時出現於 2 份報告
+- [[AI 伺服器]] — 同時出現於 2 份報告
+- [[電動車]] — 同時出現於 2 份報告
+- [[台灣精材]] — 同時出現於 2 份報告
+- [[氧化鋁]] — 同時出現於 2 份報告
+- [[陶瓷]] — 同時出現於 2 份報告
+- [[Honeywell]] — 同時出現於 2 份報告
+- [[TSC Auto ID]] — 同時出現於 2 份報告
+- [[Zebra Technologies]] — 同時出現於 2 份報告
+
+---
+
+*自動產生：`python scripts/build_obsidian_vault.py`。左側反向連結面板會列出所有提及此實體的報告。*

@@ -1,3 +1,11 @@
+---
+ticker: "4971"
+company: IET-KY
+sector: Technology
+industry: Semiconductors
+market_cap: 19153
+enterprise_value: 19009
+---
 # 4971 - [[IET-KY]]
 
 ## 業務簡介

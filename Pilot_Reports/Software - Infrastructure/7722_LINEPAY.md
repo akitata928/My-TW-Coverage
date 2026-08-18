@@ -1,3 +1,11 @@
+---
+ticker: "7722"
+company: LINEPAY
+sector: Technology
+industry: Software - Infrastructure
+market_cap: 22066
+enterprise_value: 12791
+---
 # 7722 - [[LINEPAY]]
 
 ## 業務簡介

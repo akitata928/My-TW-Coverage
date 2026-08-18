@@ -1,3 +1,11 @@
+---
+ticker: "2250"
+company: IKKA-KY
+sector: Industrials
+industry: Specialty Industrial Machinery
+market_cap: 2340
+enterprise_value: 1380
+---
 # 2250 - [[IKKA-KY]]
 
 ## 業務簡介

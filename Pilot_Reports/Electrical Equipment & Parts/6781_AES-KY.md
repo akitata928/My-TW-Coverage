@@ -1,3 +1,11 @@
+---
+ticker: "6781"
+company: AES-KY
+sector: Industrials
+industry: Electrical Equipment & Parts
+market_cap: 96096
+enterprise_value: 88606
+---
 # 6781 - [[AES-KY]]
 
 ## 業務簡介

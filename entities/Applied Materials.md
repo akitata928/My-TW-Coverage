@@ -1,0 +1,29 @@
+---
+type: international_company
+mentions: 42
+reports: 21
+aliases:
+  - AMAT
+  - 應用材料
+---
+
+# Applied Materials
+
+國際公司 · 21 份報告提及 · 共 42 次
+
+## 最常一起出現
+
+- [[Lam Research]] — 同時出現於 12 份報告
+- [[台積電]] — 同時出現於 12 份報告
+- [[ASML]] — 同時出現於 7 份報告
+- [[Tokyo Electron]] — 同時出現於 7 份報告
+- [[PVD]] — 同時出現於 7 份報告
+- [[蝕刻]] — 同時出現於 6 份報告
+- [[CVD]] — 同時出現於 5 份報告
+- [[京鼎]] — 同時出現於 4 份報告
+- [[矽晶圓]] — 同時出現於 3 份報告
+- [[聯電]] — 同時出現於 3 份報告
+
+---
+
+*自動產生：`python scripts/build_obsidian_vault.py`。左側反向連結面板會列出所有提及此實體的報告。*

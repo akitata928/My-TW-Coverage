@@ -1,3 +1,11 @@
+---
+ticker: "6933"
+company: AMAX-KY
+sector: Technology
+industry: Computer Hardware
+market_cap: 5381
+enterprise_value: 5156
+---
 # 6933 - [[AMAX-KY]]
 
 ## 業務簡介

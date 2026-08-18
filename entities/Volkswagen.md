@@ -1,0 +1,26 @@
+---
+type: international_company
+mentions: 29
+reports: 11
+---
+
+# Volkswagen
+
+國際公司 · 11 份報告提及 · 共 29 次
+
+## 最常一起出現
+
+- [[BMW]] — 同時出現於 4 份報告
+- [[Ford]] — 同時出現於 4 份報告
+- [[GM]] — 同時出現於 4 份報告
+- [[Continental]] — 同時出現於 3 份報告
+- [[比亞迪]] — 同時出現於 3 份報告
+- [[Audi]] — 同時出現於 2 份報告
+- [[Mercedes-Benz]] — 同時出現於 2 份報告
+- [[中鋼]] — 同時出現於 2 份報告
+- [[Toyota]] — 同時出現於 2 份報告
+- [[Honda]] — 同時出現於 2 份報告
+
+---
+
+*自動產生：`python scripts/build_obsidian_vault.py`。左側反向連結面板會列出所有提及此實體的報告。*

@@ -1,0 +1,25 @@
+---
+type: international_company
+mentions: 21
+reports: 9
+---
+
+# Canon
+
+國際公司 · 9 份報告提及 · 共 21 次
+
+## 最常一起出現
+
+- [[HP]] — 同時出現於 5 份報告
+- [[Epson]] — 同時出現於 5 份報告
+- [[PCB]] — 同時出現於 2 份報告
+- [[Sony]] — 同時出現於 2 份報告
+- [[電動車]] — 同時出現於 2 份報告
+- [[ADAS]] — 同時出現於 2 份報告
+- [[Brother]] — 同時出現於 2 份報告
+- [[ODM]] — 同時出現於 2 份報告
+- [[Ricoh]] — 同時出現於 2 份報告
+
+---
+
+*自動產生：`python scripts/build_obsidian_vault.py`。左側反向連結面板會列出所有提及此實體的報告。*

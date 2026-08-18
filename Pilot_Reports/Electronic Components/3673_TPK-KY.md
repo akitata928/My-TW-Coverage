@@ -1,3 +1,11 @@
+---
+ticker: "3673"
+company: TPK-KY
+sector: Technology
+industry: Electronic Components
+market_cap: 18198
+enterprise_value: 2495
+---
 # 3673 - [[TPK-KY]]
 
 ## 業務簡介

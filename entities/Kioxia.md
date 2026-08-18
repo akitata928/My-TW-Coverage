@@ -1,0 +1,25 @@
+---
+type: international_company
+mentions: 10
+reports: 5
+---
+
+# Kioxia
+
+國際公司 · 5 份報告提及 · 共 10 次
+
+## 最常一起出現
+
+- [[Micron]] — 同時出現於 4 份報告
+- [[Samsung]] — 同時出現於 4 份報告
+- [[Amazon]] — 同時出現於 2 份報告
+- [[PCIe]] — 同時出現於 2 份報告
+- [[SSD]] — 同時出現於 2 份報告
+- [[宜鼎]] — 同時出現於 2 份報告
+- [[Phison]] — 同時出現於 2 份報告
+- [[群聯]] — 同時出現於 2 份報告
+- [[SK Hynix]] — 同時出現於 2 份報告
+
+---
+
+*自動產生：`python scripts/build_obsidian_vault.py`。左側反向連結面板會列出所有提及此實體的報告。*
