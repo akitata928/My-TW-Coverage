@@ -24,7 +24,7 @@ from collections import Counter
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from utils import (
     find_ticker_files, get_ticker_from_filename, parse_scope_args, setup_stdout,
-    canonical_wikilink, normalize_wikilinks, WIKILINK_RE,
+    canonical_wikilink, normalize_wikilinks, GENERIC_TERMS, WIKILINK_RE,
 )
 
 
@@ -47,15 +47,25 @@ def normalize_title(content, ticker, company):
 
 
 def changed_links(before, after):
-    """Return a Counter of {(old, new): count} for links this pass rewrote."""
-    old_links = WIKILINK_RE.findall(before.split("## 財務概況")[0])
-    new_links = WIKILINK_RE.findall(after.split("## 財務概況")[0])
-    if len(old_links) != len(new_links):
-        # A flattened nest removes a link, so fall back to a coarse tally.
-        return Counter({("<nested link flattened>", ""): 1})
-    return Counter(
-        (o, n) for o, n in zip(old_links, new_links) if o != n
-    )
+    """Return a Counter describing how this pass altered the link set.
+
+    Positional pairing breaks as soon as a link is removed, so compare link
+    multisets instead: what disappeared, what appeared, and what merely
+    changed spelling in place.
+    """
+    old = Counter(WIKILINK_RE.findall(before.split("## 財務概況")[0]))
+    new = Counter(WIKILINK_RE.findall(after.split("## 財務概況")[0]))
+    removed, added = old - new, new - old
+
+    changes = Counter()
+    for name, count in removed.items():
+        if name in GENERIC_TERMS:
+            changes[f"{name} -> (去連結)"] += count
+        else:
+            changes[f"{name} -> ?"] += count
+    for name, count in added.items():
+        changes[f"(新增) -> {name}"] += count
+    return changes
 
 
 def main():
@@ -97,9 +107,8 @@ def main():
     print(f"{retitled} title(s) rewritten to `# ticker - [[company]]`.")
     if rewrites:
         print("Link rewrites:")
-        for (old, new), count in rewrites.most_common():
-            arrow = f"{old} -> {new}" if new else old
-            print(f"  {count:4d}  {arrow}")
+        for change, count in rewrites.most_common():
+            print(f"  {count:4d}  {change}")
 
 
 if __name__ == "__main__":

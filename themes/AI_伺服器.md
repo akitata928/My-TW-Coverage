@@ -2,7 +2,7 @@
 
 > AI 訓練與推論伺服器完整供應鏈，從晶片到系統到散熱
 
-**涵蓋公司數:** 179
+**涵蓋公司數:** 188
 
 **相關主題:** [[CoWoS]] (39) | [[HBM]] (16) | [[NVIDIA]] (107) | [[CPO]] (13) | [[資料中心]] (77)
 
@@ -25,11 +25,12 @@
 - **6982 大井泵浦** (Specialty Industrial Machinery)
 - **2025 千興** (Steel)
 
-## 中游 (18)
+## 中游 (19)
 
 - **6190 萬泰科** (Communication Equipment)
 - **6245 立端** (Communication Equipment)
 - **2301 光寶科** (Computer Hardware)
+- **2425 承啟** (Computer Hardware)
 - **5465 富驊** (Computer Hardware)
 - **8210 勤誠** (Computer Hardware)
 - **2308 台達電** (Electronic Components)
@@ -46,7 +47,7 @@
 - **3691 碩禾** (Solar)
 - **8996 高力** (Specialty Industrial Machinery)
 
-## 下游 (45)
+## 下游 (46)
 
 - **2618 長榮航** (Airlines)
 - **2646 星宇航空** (Airlines)
@@ -86,6 +87,7 @@
 - **3563 牧德** (Semiconductor Equipment & Materials)
 - **4760 勤凱** (Semiconductor Equipment & Materials)
 - **6920 恆勁科技** (Semiconductor Equipment & Materials)
+- **2329 華泰** (Semiconductors)
 - **3260 威剛** (Semiconductors)
 - **5607 遠雄港** (Specialty Business Services)
 - **4722 國精化** (Specialty Chemicals)
@@ -94,7 +96,7 @@
 - **5498 凱崴** (Tools & Accessories)
 - **8390 金益鼎** (Waste Management)
 
-## 相關公司 (102)
+## 相關公司 (109)
 
 - **2610 華航** (Airlines)
 - **6175 立敦** (Aluminum)
@@ -103,11 +105,12 @@
 - **8438 昶昕** (Chemicals)
 - **2345 智邦** (Communication Equipment)
 - **3221 台嘉碩** (Communication Equipment)
+- **3363 上詮** (Communication Equipment)
 - **6220 岳豐** (Communication Equipment)
-- **2425 承啟** (Computer Hardware)
 - **3013 晟銘電** (Computer Hardware)
 - **3032 偉訓** (Computer Hardware)
 - **3564 其陽** (Computer Hardware)
+- **5386 青雲** (Computer Hardware)
 - **6669 緯穎** (Computer Hardware)
 - **6805 富世達** (Computer Hardware)
 - **5288 豐祥-KY** (Conglomerates)
@@ -116,6 +119,7 @@
 - **1608 華榮** (Electrical Equipment & Parts)
 - **1612 宏泰** (Electrical Equipment & Parts)
 - **3323 加百裕** (Electrical Equipment & Parts)
+- **3625 西勝** (Electrical Equipment & Parts)
 - **4931 新盛力** (Electrical Equipment & Parts)
 - **6133 金橋** (Electrical Equipment & Parts)
 - **6290 良維** (Electrical Equipment & Parts)
@@ -135,12 +139,15 @@
 - **3357 臺慶科** (Electronic Components)
 - **3526 凡甲** (Electronic Components)
 - **3533 嘉澤** (Electronic Components)
+- **3593 力銘** (Electronic Components)
+- **3597 映興** (Electronic Components)
 - **3653 健策** (Electronic Components)
 - **3675 德微** (Electronic Components)
 - **3689 湧德** (Electronic Components)
 - **4573 高明鐵** (Electronic Components)
 - **4958 臻鼎-KY** (Electronic Components)
 - **5230 雷笛克光學** (Electronic Components)
+- **5243 乙盛-KY** (Electronic Components)
 - **5284 jpp-KY** (Electronic Components)
 - **5328 華容** (Electronic Components)
 - **5457 宣德** (Electronic Components)
@@ -166,13 +173,15 @@
 - **6761 穩得** (Electronics & Computer Distribution)
 - **6903 巨漢** (Engineering & Construction)
 - **2059 川湖** (Furnishings, Fixtures & Appliances)
+- **3114 好德** (Industrial Distribution)
+- **3147 大綜** (Information Technology Services)
 - **4569 六方科-KY** (Metal Fabrication)
 - **6235 華孚** (Metal Fabrication)
 - **3030 德律** (Scientific & Technical Instruments)
 - **6173 信昌電** (Semiconductor Equipment & Materials)
 - **6271 同欣電** (Semiconductor Equipment & Materials)
 - **6425 易發** (Semiconductor Equipment & Materials)
-- **2329 華泰** (Semiconductors)
+- **3105 穩懋** (Semiconductors)
 - **6202 盛群** (Semiconductors)
 - **6233 旺玖** (Semiconductors)
 - **6291 沛亨** (Semiconductors)

@@ -132,6 +132,7 @@ WIKILINK_ALIASES = {
     "Largan": "大立光", "CTCI": "中鼎", "PTI": "力成",
     "WIN Semi": "穩懋", "Walsin": "華新科",
     "日月光": "日月光投控", "臻鼎": "臻鼎-KY",
+    "消費電子": "消費性電子", "儲能": "儲能系統",
     # Foreign companies: Chinese -> English
     "艾司摩爾": "ASML", "應用材料": "Applied Materials", "AMAT": "Applied Materials",
     "東京威力": "Tokyo Electron", "TEL": "Tokyo Electron",
@@ -175,8 +176,12 @@ TECH_TERMS = {
     "NOR Flash", "NAND Flash", "eMMC", "UFS",
     "MEMS", "CIS", "ToF", "LiDAR", "TFT-LCD",
     "矽光子", "光收發模組",
-    "磊晶", "蝕刻", "微影", "封裝測試", "晶圓代工",
+    "磊晶", "蝕刻", "微影", "封裝測試", "晶圓代工", "IC 設計",
     "2.5D 封裝", "3D 封裝", "第三代半導體",
+    "連接器", "被動元件",
+    "散熱模組", "散熱片", "散熱鰭片", "散熱風扇", "散熱基板",
+    "均熱片", "均熱板", "熱管", "液冷散熱", "浸沒式散熱",
+    "導熱膏", "熱介面材料",
 }
 
 MATERIAL_TERMS = {
@@ -191,16 +196,18 @@ APPLICATION_TERMS = {
     "智慧家庭", "車用電子", "綠能", "太陽能",
     "風電", "儲能系統", "離岸風電", "自動駕駛", "智慧城市",
     "行車記錄器", "無人機",
+    "伺服器", "工業電腦", "消費性電子", "機器人", "光通訊",
 }
 
-# Category words that were wikilinked despite CLAUDE.md rule 1 (wikilinks must
-# be specific proper nouns). Kept as an explicit set so the graph colours them
-# honestly and audit can report the debt, instead of the CJK fallback below
-# silently filing them as Taiwan companies.
+# Category words that must never be wikilinked (CLAUDE.md rule 1: wikilinks are
+# specific proper nouns). These stay useful as plain-text context, so
+# normalize_wikilinks unlinks them rather than deleting the words. Terms that
+# looked generic but are real Taiwan market segments — 連接器, 工業電腦,
+# IC 設計 — moved into the sets above instead; the test is whether the label
+# narrows a search, not whether it is a common noun.
 GENERIC_TERMS = {
-    "半導體", "伺服器", "記憶體", "散熱", "自動化", "網通", "連接器",
-    "被動元件", "面板", "電源供應器", "IC 設計", "工業電腦",
-    "消費電子", "消費性電子", "雲端服務", "機器人", "光通訊", "儲能",
+    "半導體", "記憶體", "散熱", "自動化", "網通",
+    "面板", "電源供應器", "雲端服務",
 }
 
 CATEGORY_COLORS = {
@@ -294,6 +301,48 @@ def canonical_wikilink(name):
     return _CANONICAL_BY_KEY.get(_surface_key(name), name)
 
 
+# A link that covers only the head of a longer name, e.g. [[散熱]]模組 or
+# [[AI]] [[伺服器]]. Absorption is self-limiting: the merged text must already
+# be a registered canonical term AND must resolve to something other than the
+# head alone, so this can neither invent a node nor swallow trailing spaces
+# (_surface_key ignores whitespace, so "台積電 " would otherwise look like a hit).
+_FRAGMENT_RE = re.compile(r"\[\[([^\[\]]+)\]\]([\u4e00-\u9fffA-Za-z]{1,5})")
+_BRIDGED_RE = re.compile(r"\[\[([^\[\]]+)\]\]\s*\[\[([^\[\]]+)\]\]")
+
+
+def _absorbed(head, suffix):
+    """Canonical name for head+suffix, or None if that is not a known term."""
+    merged = canonical_wikilink(head + suffix)
+    if _surface_key(head + suffix) not in _CANONICAL_BY_KEY:
+        return None
+    return merged if merged != canonical_wikilink(head) else None
+
+
+def absorb_fragment_links(text):
+    """Extend a link that stops short of the full registered term."""
+
+    def bridged(m):
+        merged = _absorbed(m.group(1), " " + m.group(2))
+        return f"[[{merged}]]" if merged else m.group(0)
+
+    def fragment(m):
+        head, tail = m.group(1), m.group(2)
+        for n in range(len(tail), 0, -1):
+            merged = _absorbed(head, tail[:n])
+            if merged:
+                return f"[[{merged}]]" + tail[n:]
+        return m.group(0)
+
+    return _FRAGMENT_RE.sub(fragment, _BRIDGED_RE.sub(bridged, text))
+
+
+def unlink_generic_terms(text):
+    """Strip brackets from category words, keeping them as plain-text context."""
+    return WIKILINK_RE.sub(
+        lambda m: m.group(1) if m.group(1) in GENERIC_TERMS else m.group(0), text
+    )
+
+
 def flatten_nested_wikilinks(text):
     """Collapse a link that swallowed another link: [[A[[B]]C]] -> [[ABC]]."""
 
@@ -316,7 +365,11 @@ def normalize_wikilinks(content):
     head, sep, tail = content.partition("## 財務概況")
 
     head = flatten_nested_wikilinks(head)
+    # Absorb before unlinking: [[散熱]]模組 must become [[散熱模組]] rather than
+    # losing its brackets as a bare category word.
+    head = absorb_fragment_links(head)
     head = WIKILINK_RE.sub(lambda m: "[[" + canonical_wikilink(m.group(1)) + "]]", head)
+    head = unlink_generic_terms(head)
 
     # Collapse [[X]] ([[X]]) duplicate parentheticals
     head = re.sub(

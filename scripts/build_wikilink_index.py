@@ -102,7 +102,10 @@ def main():
     ]
 
     for key, title, limit in SECTION_TITLES:
-        lines.extend(build_section(title, grouped[key], limit))
+        # The generic section is debt that should reach zero; once it does,
+        # an empty heading is noise rather than information.
+        if grouped[key]:
+            lines.extend(build_section(title, grouped[key], limit))
 
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
         f.write("\n".join(lines))

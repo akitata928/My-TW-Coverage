@@ -1,6 +1,6 @@
 # Taiwan Stock Coverage Database
 
-A structured equity research database covering **1,733 Taiwan-listed companies** (TWSE + OTC) across **98 industry sectors**. Each report contains a business overview, supply chain mapping, customer/supplier relationships, and financial data — all cross-referenced through **6,099 wikilinks** that form a searchable knowledge graph.
+A structured equity research database covering **1,733 Taiwan-listed companies** (TWSE + OTC) across **98 industry sectors**. Each report contains a business overview, supply chain mapping, customer/supplier relationships, and financial data — all cross-referenced through **6,095 wikilinks** that form a searchable knowledge graph.
 
 ## Why This Exists
 
@@ -145,7 +145,7 @@ Run `python scripts/build_wikilink_index.py` afterwards so the index reflects th
 python scripts/build_wikilink_index.py
 ```
 
-Regenerates [WIKILINKS.md](WIKILINKS.md) — a browsable index of all 6,099 wikilinks categorized by type (Technologies, Materials, Applications, Generic Terms, Companies). Run after any enrichment update.
+Regenerates [WIKILINKS.md](WIKILINKS.md) — a browsable index of all 6,095 wikilinks categorized by type (Technologies, Materials, Applications, Generic Terms, Companies). Run after any enrichment update.
 
 ### Discover Companies by Buzzword
 
@@ -225,7 +225,7 @@ These use Claude AI for web research, content generation, and intelligent enrich
 
 Browse the full index: **[WIKILINKS.md](WIKILINKS.md)**
 
-The database contains **6,099 unique wikilinks** across three categories:
+The database contains **6,095 unique wikilinks** across three categories:
 
 | Category | Examples | Purpose |
 |---|---|---|
@@ -240,7 +240,7 @@ The database contains **6,099 unique wikilinks** across three categories:
 | `[[台積電]]` | 491 | Taiwan's semiconductor ecosystem revolves around TSMC |
 | `[[NVIDIA]]` | 294 | AI supply chain — who makes NVIDIA's components |
 | `[[Apple]]` | 219 | Apple's Taiwanese supplier network |
-| `[[AI 伺服器]]` | 331 | AI server supply chain mapping |
+| `[[AI 伺服器]]` | 353 | AI server supply chain mapping |
 | `[[電動車]]` | 231 | EV component suppliers |
 | `[[5G]]` | 232 | 5G infrastructure companies |
 | `[[PCB]]` | 266 | Printed circuit board ecosystem |
@@ -273,7 +273,7 @@ The database contains **6,099 unique wikilinks** across three categories:
 │   └── ... (99 folders)
 ├── network/                   # Interactive wikilink network graph (auto-generated)
 │   ├── index.html             # D3.js visualization (open in browser)
-│   └── graph_data.json        # Raw graph data (350 nodes, 1,478 edges)
+│   └── graph_data.json        # Raw graph data (344 nodes, 1,315 edges)
 ├── themes/                    # Thematic investment screens (auto-generated)
 │   ├── README.md              # Theme index
 │   ├── CoWoS.md               # 39 companies in CoWoS supply chain
@@ -297,7 +297,8 @@ Every report is validated against 8 quality rules (defined in `CLAUDE.md`):
 7. **Complete metadata** (sector, industry, market cap, enterprise value)
 8. **Segmented supply chain** — upstream/midstream/downstream by category
 
-Current audit score: **1,733/1,733 (100%)** pass all quality checks.
+Current audit score: **1,718/1,733 (99%)** pass all quality checks. The 15 open reports
+are thin on specific proper nouns — see [todo.md](todo.md).
 
 ## Data Sources
 
