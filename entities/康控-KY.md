@@ -11,6 +11,13 @@ reports: 1
 
 **完整研究報告：** [[4943_康控-KY]]
 
+## 下游 — 它供應給 (4)
+
+- [[歌爾聲學]]
+- [[瑞聲科技]]
+- [[Apple]]
+- [[Volkswagen]]
+
 ---
 
 *自動產生：`python scripts/build_obsidian_vault.py`。左側反向連結面板會列出所有提及此實體的報告。*

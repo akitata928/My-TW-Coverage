@@ -27,6 +27,7 @@ from utils import (
     PROJECT_ROOT, REPORTS_DIR, setup_stdout,
     WIKILINK_RE, WIKILINK_ALIASES, classify_wikilink, CATEGORY_LABELS,
 )
+from relations import extract_relations, SUPPLIES
 
 ENTITIES_DIR = os.path.join(PROJECT_ROOT, "entities")
 
@@ -36,15 +37,18 @@ ENTITIES_DIR = os.path.join(PROJECT_ROOT, "entities")
 UNSAFE_NAME = re.compile(r'[\\/:*?"<>|#^\[\]]')
 
 TOP_NEIGHBOURS = 10
+TOP_CHAIN = 15
 MIN_SHARED_REPORTS = 2
 
 
 def scan_reports():
-    """Return (mentions, reports_per_entity, co_occurrence, ticker_by_company)."""
+    """Return (mentions, reports, co_occurrence, tickers, upstream, downstream)."""
     mentions = Counter()
     reports = Counter()
     co = defaultdict(Counter)
     ticker_by_company = {}
+    upstream = defaultdict(Counter)
+    downstream = defaultdict(Counter)
 
     for root, _, files in os.walk(REPORTS_DIR):
         for f in sorted(files):
@@ -57,6 +61,11 @@ def scan_reports():
             with open(os.path.join(root, f), "r", encoding="utf-8") as fh:
                 head = fh.read().split("## 財務概況")[0]
 
+            for r in extract_relations(head, company):
+                if r.kind == SUPPLIES:
+                    upstream[r.target][r.source] += 1
+                    downstream[r.source][r.target] += 1
+
             links = WIKILINK_RE.findall(head)
             mentions.update(links)
             unique = sorted(set(links))
@@ -66,7 +75,7 @@ def scan_reports():
                     co[a][b] += 1
                     co[b][a] += 1
 
-    return mentions, reports, co, ticker_by_company
+    return mentions, reports, co, ticker_by_company, upstream, downstream
 
 
 def aliases_for(name):
@@ -74,7 +83,7 @@ def aliases_for(name):
     return sorted(a for a, c in WIKILINK_ALIASES.items() if c == name)
 
 
-def build_note(name, mentions, reports, co, ticker_by_company):
+def build_note(name, mentions, reports, co, ticker_by_company, upstream, downstream):
     """Render one entity note."""
     category = classify_wikilink(name)
     ticker = ticker_by_company.get(name)
@@ -100,6 +109,19 @@ def build_note(name, mentions, reports, co, ticker_by_company):
     ]
     if ticker:
         body += [f"**完整研究報告：** [[{ticker}_{name}]]", ""]
+
+    # Direction comes from what the reports state, so these two lists are the
+    # part a plain co-occurrence graph could never give: who feeds this entity
+    # and who it feeds.
+    for heading, chain in (("上游 — 供應給它", upstream[name]),
+                           ("下游 — 它供應給", downstream[name])):
+        entries = chain.most_common(TOP_CHAIN)
+        if entries:
+            body += [f"## {heading} ({len(chain)})", ""]
+            body += [f"- [[{other}]]" for other, _ in entries]
+            if len(chain) > TOP_CHAIN:
+                body += [f"- …另有 {len(chain) - TOP_CHAIN} 個"]
+            body += [""]
 
     neighbours = [
         (other, count)
@@ -129,7 +151,7 @@ def main():
     if "--min-reports" in args:
         min_reports = int(args[args.index("--min-reports") + 1])
 
-    mentions, reports, co, ticker_by_company = scan_reports()
+    mentions, reports, co, tickers, upstream, downstream = scan_reports()
 
     if "--clean" in args and os.path.isdir(ENTITIES_DIR):
         for f in os.listdir(ENTITIES_DIR):
@@ -160,7 +182,8 @@ def main():
             continue
         path = os.path.join(ENTITIES_DIR, f"{name}.md")
         with open(path, "w", encoding="utf-8") as f:
-            f.write(build_note(name, mentions, reports, co, ticker_by_company))
+            f.write(build_note(name, mentions, reports, co, tickers,
+                               upstream, downstream))
         written += 1
 
     total_links = sum(mentions.values())

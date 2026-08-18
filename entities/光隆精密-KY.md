@@ -11,6 +11,19 @@ reports: 1
 
 **完整研究報告：** [[4581_光隆精密-KY]]
 
+## 下游 — 它供應給 (10)
+
+- [[Cummins]]
+- [[PACCAR]]
+- [[Daimler Truck]]
+- [[Volvo Trucks]]
+- [[Traton]]
+- [[Isuzu]]
+- [[UD Trucks]]
+- [[Continental]]
+- [[Haldex]]
+- [[浙江銀輪]]
+
 ---
 
 *自動產生：`python scripts/build_obsidian_vault.py`。左側反向連結面板會列出所有提及此實體的報告。*

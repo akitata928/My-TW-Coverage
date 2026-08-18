@@ -1,9 +1,11 @@
 """
-build_themes.py — Generate thematic investment screens from wikilink graph.
+build_themes.py — Generate thematic investment screens from the relation graph.
 
-Scans all ticker reports for wikilinks, groups companies by theme (technology,
-material, application), and generates markdown pages showing the full value chain
-for each theme.
+Groups the companies around each theme by the direction the reports actually
+state: a company that lists the theme among its customers or downstream feeds
+the theme, one that lists it upstream consumes it. This used to be guessed by
+looking back 100 characters from the wikilink for the words 上游/下游, which
+assigned roles almost at random; relations.extract_relations replaces that.
 
 Usage:
   python scripts/build_themes.py              # Rebuild all themes
@@ -20,6 +22,7 @@ from collections import defaultdict
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from utils import WIKILINK_RE
+from relations import extract_relations, SUPPLIES
 
 REPORTS_DIR = os.path.join(os.path.dirname(__file__), "..", "Pilot_Reports")
 THEMES_DIR = os.path.join(os.path.dirname(__file__), "..", "themes")
@@ -139,63 +142,47 @@ THEME_DEFINITIONS = {
 }
 
 
-def scan_wikilinks():
-    """Scan all reports, return {wikilink: [(ticker, company, sector, context)]}."""
-    wl_map = defaultdict(list)
+def scan_relations():
+    """Return {theme: [{ticker, company, sector, role}]} for every wikilink.
 
-    for sector_dir in os.listdir(REPORTS_DIR):
+    role is the company's position relative to the theme, not the theme's
+    position in that company's report: `supplier` means the company feeds the
+    theme, `user` means it consumes the theme.
+    """
+    theme_map = defaultdict(list)
+
+    for sector_dir in sorted(os.listdir(REPORTS_DIR)):
         sector_path = os.path.join(REPORTS_DIR, sector_dir)
         if not os.path.isdir(sector_path):
             continue
-        for f in os.listdir(sector_path):
-            if not f.endswith(".md"):
-                continue
+        for f in sorted(os.listdir(sector_path)):
             m = re.match(r"^(\d{4})_(.+)\.md$", f)
             if not m:
                 continue
             ticker, company = m.group(1), m.group(2)
-            filepath = os.path.join(sector_path, f)
-            with open(filepath, "r", encoding="utf-8") as fh:
-                content = fh.read()
+            with open(os.path.join(sector_path, f), "r", encoding="utf-8") as fh:
+                head = fh.read().split("## 財務概況")[0]
 
-            # Split content into sections for context
-            sections = {
-                "desc": "",
-                "supply_chain": "",
-                "customers": "",
-            }
-            parts = re.split(r"## ", content)
-            for part in parts:
-                if part.startswith("業務簡介"):
-                    sections["desc"] = part
-                elif part.startswith("供應鏈位置"):
-                    sections["supply_chain"] = part
-                elif part.startswith("主要客戶及供應商"):
-                    sections["customers"] = part
+            roles = {}
+            for r in extract_relations(head, company):
+                if r.kind != SUPPLIES:
+                    continue
+                if r.source == company:
+                    roles[r.target] = "supplier"
+                elif r.target == company:
+                    roles[r.source] = "user"
 
-            # Find all wikilinks in non-financial sections
-            text = sections["desc"] + sections["supply_chain"] + sections["customers"]
-            for wl in set(WIKILINK_RE.findall(text)):
-                # Determine role from context
-                role = "related"
-                if wl in sections["supply_chain"]:
-                    if "上游" in sections["supply_chain"].split(wl)[0][-100:]:
-                        role = "upstream"
-                    elif "下游" in sections["supply_chain"].split(wl)[0][-100:]:
-                        role = "downstream"
-                    elif "中游" in sections["supply_chain"].split(wl)[0][-100:]:
-                        role = "midstream"
+            for name in set(WIKILINK_RE.findall(head)):
+                if name == company:
+                    continue
+                theme_map[name].append({
+                    "ticker": ticker,
+                    "company": company,
+                    "sector": sector_dir,
+                    "role": roles.get(name, "related"),
+                })
 
-                wl_map[wl].append(
-                    {
-                        "ticker": ticker,
-                        "company": company,
-                        "sector": sector_dir,
-                        "role": role,
-                    }
-                )
-
-    return wl_map
+    return theme_map
 
 
 def build_theme_page(theme_tag, theme_def, wl_map):
@@ -226,10 +213,9 @@ def build_theme_page(theme_tag, theme_def, wl_map):
     lines.append("---")
     lines.append("")
 
-    # Group by role
-    upstream = [e for e in entries if e["role"] == "upstream"]
-    midstream = [e for e in entries if e["role"] == "midstream"]
-    downstream = [e for e in entries if e["role"] == "downstream"]
+    # Group by the company's position relative to the theme
+    upstream = [e for e in entries if e["role"] == "supplier"]
+    downstream = [e for e in entries if e["role"] == "user"]
     other = [e for e in entries if e["role"] == "related"]
 
     def format_entries(entries):
@@ -247,25 +233,19 @@ def build_theme_page(theme_tag, theme_def, wl_map):
         return result
 
     if upstream:
-        lines.append(f"## 上游 ({len(upstream)})")
+        lines.append(f"## 上游 — 供應給本主題 ({len(upstream)})")
         lines.append("")
         lines.extend(format_entries(upstream))
         lines.append("")
 
-    if midstream:
-        lines.append(f"## 中游 ({len(midstream)})")
-        lines.append("")
-        lines.extend(format_entries(midstream))
-        lines.append("")
-
     if downstream:
-        lines.append(f"## 下游 ({len(downstream)})")
+        lines.append(f"## 下游 — 使用本主題 ({len(downstream)})")
         lines.append("")
         lines.extend(format_entries(downstream))
         lines.append("")
 
     if other:
-        lines.append(f"## 相關公司 ({len(other)})")
+        lines.append(f"## 相關公司 — 有提及但未言明角色 ({len(other)})")
         lines.append("")
         lines.extend(format_entries(other))
         lines.append("")
@@ -322,8 +302,8 @@ def main():
             print(f"  {tag}: {defn['name']}")
         return
 
-    print("Scanning wikilinks across all reports...")
-    wl_map = scan_wikilinks()
+    print("Extracting typed relations across all reports...")
+    wl_map = scan_relations()
     print(f"Found {len(wl_map)} unique wikilinks.\n")
 
     # Filter to requested theme or build all

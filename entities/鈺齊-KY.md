@@ -11,6 +11,22 @@ reports: 2
 
 **完整研究報告：** [[9802_鈺齊-KY]]
 
+## 上游 — 供應給它 (5)
+
+- [[南寶]]
+- [[Gore-Tex]]
+- [[Vibram]]
+- [[EVA]]
+- [[百和興業]]
+
+## 下游 — 它供應給 (5)
+
+- [[Decathlon]]
+- [[Merrell]]
+- [[Jack Wolfskin]]
+- [[Timberland]]
+- [[The North Face]]
+
 ## 最常一起出現
 
 - [[Timberland]] — 同時出現於 2 份報告

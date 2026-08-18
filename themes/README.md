@@ -9,26 +9,26 @@
 
 - [CoWoS](CoWoS.md) — 39 家公司
 - [HBM](HBM.md) — 16 家公司
-- [CPO](CPO.md) — 13 家公司
+- [CPO](CPO.md) — 14 家公司
 
 ## 光電與化合物半導體
 
 - [矽光子](矽光子.md) — 15 家公司
 - [VCSEL](VCSEL.md) — 10 家公司
 - [碳化矽](碳化矽.md) — 22 家公司
-- [氮化鎵](氮化鎵.md) — 19 家公司
+- [氮化鎵](氮化鎵.md) — 20 家公司
 - [磷化銦](磷化銦.md) — 5 家公司
 
 ## AI / 資料中心
 
 - [AI 伺服器](AI_伺服器.md) — 188 家公司
-- [資料中心](資料中心.md) — 77 家公司
-- [NVIDIA](NVIDIA.md) — 107 家公司
+- [資料中心](資料中心.md) — 81 家公司
+- [NVIDIA](NVIDIA.md) — 122 家公司
 
 ## 電動車 / 車用
 
-- [電動車](電動車.md) — 128 家公司
-- [Tesla](Tesla.md) — 47 家公司
+- [電動車](電動車.md) — 133 家公司
+- [Tesla](Tesla.md) — 56 家公司
 
 ## 通訊
 
@@ -37,7 +37,7 @@
 
 ## 製程與設備
 
-- [EUV](EUV.md) — 9 家公司
+- [EUV](EUV.md) — 10 家公司
 
 ## 材料
 
@@ -47,6 +47,6 @@
 
 ## 品牌供應鏈
 
-- [Apple](Apple.md) — 80 家公司
-- [NVIDIA](NVIDIA.md) — 107 家公司
-- [Tesla](Tesla.md) — 47 家公司
+- [Apple](Apple.md) — 96 家公司
+- [NVIDIA](NVIDIA.md) — 122 家公司
+- [Tesla](Tesla.md) — 56 家公司

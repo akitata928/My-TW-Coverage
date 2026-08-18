@@ -11,6 +11,15 @@ reports: 1
 
 **完整研究報告：** [[8437_大地-KY]]
 
+## 上游 — 供應給它 (1)
+
+- [[ABCmouse]]
+
+## 下游 — 它供應給 (2)
+
+- [[菲律賓]]
+- [[ABCmouse]]
+
 ---
 
 *自動產生：`python scripts/build_obsidian_vault.py`。左側反向連結面板會列出所有提及此實體的報告。*

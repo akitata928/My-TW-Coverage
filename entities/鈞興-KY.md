@@ -11,6 +11,14 @@ reports: 1
 
 **完整研究報告：** [[4571_鈞興-KY]]
 
+## 下游 — 它供應給 (5)
+
+- [[TTI]]
+- [[Stanley Black & Decker]]
+- [[Makita]]
+- [[Bosch]]
+- [[工業機器人]]
+
 ---
 
 *自動產生：`python scripts/build_obsidian_vault.py`。左側反向連結面板會列出所有提及此實體的報告。*

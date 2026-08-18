@@ -174,17 +174,25 @@ python scripts/discover.py "液冷散熱" --sector Semiconductors  # Limit to sp
 
 Results show companies grouped by relationship type (core business, supply chain, customer/supplier) with context snippets. Use `--smart` to auto-filter irrelevant sectors (tech buzzwords skip banks/insurance/real estate).
 
-### Generate Wikilink Network Graph
+### Generate the Directed Supply Chain Graph
 
-Interactive D3.js force-directed graph showing wikilink co-occurrences across all tickers. Hover to highlight neighbors, search by name, adjust edge weight threshold.
+Interactive D3 graph of **typed, directed** relations — arrows point from supplier
+to customer, so the graph answers "who sells to whom", not just "who is mentioned
+together". Edges come from `scripts/relations.py`, which reads the 上游/下游 and
+主要客戶/主要供應商 structure the reports already use.
 
 ```bash
-python scripts/build_network.py                    # Default: min 5 co-occurrences
-python scripts/build_network.py --min-weight 10    # Fewer edges, cleaner view
-python scripts/build_network.py --top 200          # Only top 200 nodes
+python scripts/build_network.py             # top 300 nodes by degree
+python scripts/build_network.py --top 100   # smaller, clearer
+python scripts/build_network.py --top 0     # every node (slow to render)
 ```
 
-Open `network/index.html` in your browser. Node colors: red = Taiwan company, blue = international, green = technology, orange = material, purple = application.
+Open `network/index.html` in your browser — D3 is vendored under `network/vendor/`,
+so it works offline. Hover a node for its upstream and downstream; toggle relation
+kinds (供應 / 競爭 / 提及); drag the slider to change how many nodes are shown.
+Node colors: red = Taiwan company, blue = international, green = technology,
+orange = material, purple = application. A thicker edge means both companies'
+reports state the same relationship.
 
 ### Generate Thematic Investment Screens
 
@@ -194,7 +202,9 @@ python scripts/build_themes.py "CoWoS"       # Single theme
 python scripts/build_themes.py --list        # List available themes
 ```
 
-Generates [themes/](themes/) — supply chain maps for key investment themes. Each page shows companies grouped by upstream/midstream/downstream role. See [themes/README.md](themes/README.md) for the full index.
+Generates [themes/](themes/) — supply chain maps for key investment themes. Each
+page groups companies by the direction their own reports state: 上游 (feeds the
+theme), 下游 (consumes it), or 相關 (mentioned without a stated role). See [themes/README.md](themes/README.md) for the full index.
 
 ## Token Usage & Cost Guide
 
@@ -212,7 +222,7 @@ These run 100% locally with Python + yfinance. No AI, no API cost.
 | Audit | `python scripts/audit_batch.py <batch> -v` | Quality check reports |
 | Discover (search) | `python scripts/discover.py "<buzzword>"` | Scan reports for keyword matches |
 | Build Themes | `python scripts/build_themes.py` | Generate thematic supply chain pages |
-| Build Network | `python scripts/build_network.py` | Generate interactive D3.js graph |
+| Build Network | `python scripts/build_network.py` | Generate the directed supply-chain graph |
 | Build Wikilink Index | `python scripts/build_wikilink_index.py` | Rebuild WIKILINKS.md |
 | Build Obsidian Vault | `python scripts/build_obsidian_vault.py` | Rebuild entities/ so every `[[link]]` resolves |
 | Normalize Wikilinks | `python scripts/normalize_reports.py [scope]` | Merge spelling variants, repair malformed links |
@@ -280,16 +290,18 @@ The database contains **6,095 unique wikilinks** across three categories:
 │   ├── build_wikilink_index.py # Rebuild WIKILINKS.md index
 │   ├── normalize_reports.py   # Repair/merge wikilink surface forms
 │   ├── build_themes.py        # Generate thematic investment screens
-│   ├── build_network.py       # Generate interactive network graph
+│   ├── relations.py           # Parse typed, directed supply-chain edges
+│   ├── build_network.py       # Generate the directed supply-chain graph
 │   └── generators/            # Historical base report generators
 ├── Pilot_Reports/             # 1,733 ticker reports across 98 sectors
 │   ├── Semiconductors/
 │   ├── Electronic Components/
 │   └── ... (99 folders)
 ├── entities/                  # One note per wikilink, for Obsidian (auto-generated)
-├── network/                   # Interactive wikilink network graph (auto-generated)
-│   ├── index.html             # D3.js visualization (open in browser)
-│   └── graph_data.json        # Raw graph data (344 nodes, 1,315 edges)
+├── network/                   # Directed supply-chain graph (auto-generated)
+│   ├── index.html             # D3 visualization (open in browser)
+│   ├── vendor/d3.v7.min.js    # Vendored so the page works offline
+│   └── graph_data.json        # 287 nodes, 1,302 directed typed edges
 ├── themes/                    # Thematic investment screens (auto-generated)
 │   ├── README.md              # Theme index
 │   ├── CoWoS.md               # 39 companies in CoWoS supply chain

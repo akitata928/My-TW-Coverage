@@ -11,6 +11,24 @@ reports: 2
 
 **完整研究報告：** [[4977_眾達-KY]]
 
+## 上游 — 供應給它 (4)
+
+- [[光通訊]]
+- [[Broadcom]]
+- [[Marvell]]
+- [[環宇-KY]]
+
+## 下游 — 它供應給 (8)
+
+- [[Cisco]]
+- [[Arista]]
+- [[Google]]
+- [[Meta]]
+- [[Amazon]]
+- [[Microsoft]]
+- [[Broadcom]]
+- [[CPO]]
+
 ## 最常一起出現
 
 - [[Google]] — 同時出現於 2 份報告

@@ -11,6 +11,17 @@ reports: 1
 
 **完整研究報告：** [[6616_特昇-KY]]
 
+## 上游 — 供應給它 (3)
+
+- [[橡膠木]]
+- [[MDF]]
+- [[刨花板]]
+
+## 下游 — 它供應給 (2)
+
+- [[Ashley Furniture]]
+- [[Rooms To Go]]
+
 ---
 
 *自動產生：`python scripts/build_obsidian_vault.py`。左側反向連結面板會列出所有提及此實體的報告。*
