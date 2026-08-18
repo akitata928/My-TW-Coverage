@@ -1,4 +1,4 @@
-# 2250 - IKKA-KY
+# 2250 - [[IKKA-KY]]
 
 ## 業務簡介
 **板塊:** Industrials

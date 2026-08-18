@@ -1,4 +1,4 @@
-# 6902_GOGOLOOK
+# 6902 - [[GOGOLOOK]]
 
 ## 業務簡介
 **板塊:** Technology

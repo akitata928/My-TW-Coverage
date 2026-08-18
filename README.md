@@ -1,12 +1,12 @@
 # Taiwan Stock Coverage Database
 
-A structured equity research database covering **1,735 Taiwan-listed companies** (TWSE + OTC) across **99 industry sectors**. Each report contains a business overview, supply chain mapping, customer/supplier relationships, and financial data — all cross-referenced through **4,900+ wikilinks** that form a searchable knowledge graph.
+A structured equity research database covering **1,733 Taiwan-listed companies** (TWSE + OTC) across **98 industry sectors**. Each report contains a business overview, supply chain mapping, customer/supplier relationships, and financial data — all cross-referenced through **6,099 wikilinks** that form a searchable knowledge graph.
 
 ## Why This Exists
 
 Taiwan's stock market has 1,800+ listed companies, many of which are critical nodes in global supply chains (semiconductors, electronics, automotive, textiles). Public information is fragmented across Chinese-language filings, investor presentations, and industry reports. This database consolidates that research into a consistent, searchable format.
 
-**The wikilink graph is the core feature.** Searching `[[Apple]]` reveals 207 Taiwanese companies in Apple's supply chain. Searching `[[CoWoS]]` shows every company involved in TSMC's advanced packaging. Searching `[[光阻液]]` (photoresist) maps every supplier and consumer of that material.
+**The wikilink graph is the core feature.** Searching `[[Apple]]` reveals 96 Taiwanese companies in Apple's supply chain. Searching `[[CoWoS]]` shows every company involved in TSMC's advanced packaging. Searching `[[光阻液]]` (photoresist) maps every supplier and consumer of that material.
 
 ## Quick Start
 
@@ -26,9 +26,9 @@ Pilot_Reports/
 │   ├── 2330_台積電.md        # TSMC
 │   ├── 2454_聯發科.md        # MediaTek
 │   └── ...
-├── Electronic Components/    (267 tickers)
-├── Computer Hardware/        (114 tickers)
-└── ... (99 sector folders)
+├── Electronic Components/    (266 tickers)
+├── Computer Hardware/        (113 tickers)
+└── ... (98 sector folders)
 ```
 
 Each report follows a consistent structure:
@@ -123,13 +123,29 @@ python scripts/audit_batch.py --all -v    # All batches
 
 The audit checks: minimum 8 wikilinks, no generic terms in brackets, no placeholders, no English text, metadata completeness, and section depth.
 
+### Normalize Wikilinks
+
+Folds spelling variants onto one graph node (`Nvidia` → `NVIDIA`, `MicroLED` → `Micro LED`,
+`AI伺服器` → `AI 伺服器`) and repairs links that swallowed another link
+(`[[AI[[伺服器]]]]` → `[[AI 伺服器]]`). Enrichment normalizes on write; this is the
+catch-up pass for older content. Financial tables are never touched.
+
+```bash
+python scripts/normalize_reports.py --dry-run     # report what would change
+python scripts/normalize_reports.py               # ALL tickers
+python scripts/normalize_reports.py 2330 2454     # specific tickers
+python scripts/normalize_reports.py --sector Semiconductors
+```
+
+Run `python scripts/build_wikilink_index.py` afterwards so the index reflects the merges.
+
 ### Rebuild Wikilink Index
 
 ```bash
 python scripts/build_wikilink_index.py
 ```
 
-Regenerates [WIKILINKS.md](WIKILINKS.md) — a browsable index of all 4,900+ wikilinks categorized by type (Technologies, Materials, Applications, Companies). Run after any enrichment update.
+Regenerates [WIKILINKS.md](WIKILINKS.md) — a browsable index of all 6,099 wikilinks categorized by type (Technologies, Materials, Applications, Generic Terms, Companies). Run after any enrichment update.
 
 ### Discover Companies by Buzzword
 
@@ -185,6 +201,7 @@ These run 100% locally with Python + yfinance. No AI, no API cost.
 | Build Themes | `python scripts/build_themes.py` | Generate thematic supply chain pages |
 | Build Network | `python scripts/build_network.py` | Generate interactive D3.js graph |
 | Build Wikilink Index | `python scripts/build_wikilink_index.py` | Rebuild WIKILINKS.md |
+| Normalize Wikilinks | `python scripts/normalize_reports.py [scope]` | Merge spelling variants, repair malformed links |
 
 ### Consumes Tokens — Claude Code Skills (Requires AI)
 
@@ -208,7 +225,7 @@ These use Claude AI for web research, content generation, and intelligent enrich
 
 Browse the full index: **[WIKILINKS.md](WIKILINKS.md)**
 
-The database contains **4,900+ unique wikilinks** across three categories:
+The database contains **6,099 unique wikilinks** across three categories:
 
 | Category | Examples | Purpose |
 |---|---|---|
@@ -220,13 +237,13 @@ The database contains **4,900+ unique wikilinks** across three categories:
 
 | Entity | Mentions | What it reveals |
 |---|---|---|
-| `[[台積電]]` | 469 | Taiwan's semiconductor ecosystem revolves around TSMC |
-| `[[NVIDIA]]` | 277 | AI supply chain — who makes NVIDIA's components |
-| `[[Apple]]` | 207 | Apple's Taiwanese supplier network |
-| `[[AI 伺服器]]` | 237 | AI server supply chain mapping |
-| `[[電動車]]` | 223 | EV component suppliers |
+| `[[台積電]]` | 491 | Taiwan's semiconductor ecosystem revolves around TSMC |
+| `[[NVIDIA]]` | 294 | AI supply chain — who makes NVIDIA's components |
+| `[[Apple]]` | 219 | Apple's Taiwanese supplier network |
+| `[[AI 伺服器]]` | 331 | AI server supply chain mapping |
+| `[[電動車]]` | 231 | EV component suppliers |
 | `[[5G]]` | 232 | 5G infrastructure companies |
-| `[[PCB]]` | 263 | Printed circuit board ecosystem |
+| `[[PCB]]` | 266 | Printed circuit board ecosystem |
 
 ## Project Structure
 
@@ -245,16 +262,17 @@ The database contains **4,900+ unique wikilinks** across three categories:
 │   ├── update_valuation.py     # Refresh valuation multiples only (fast)
 │   ├── discover.py            # Reverse search: buzzword → related companies
 │   ├── build_wikilink_index.py # Rebuild WIKILINKS.md index
+│   ├── normalize_reports.py   # Repair/merge wikilink surface forms
 │   ├── build_themes.py        # Generate thematic investment screens
 │   ├── build_network.py       # Generate interactive network graph
 │   └── generators/            # Historical base report generators
-├── Pilot_Reports/             # 1,735 ticker reports across 99 sectors
+├── Pilot_Reports/             # 1,733 ticker reports across 98 sectors
 │   ├── Semiconductors/
 │   ├── Electronic Components/
 │   └── ... (99 folders)
 ├── network/                   # Interactive wikilink network graph (auto-generated)
 │   ├── index.html             # D3.js visualization (open in browser)
-│   └── graph_data.json        # Raw graph data (339 nodes, 1,452 edges)
+│   └── graph_data.json        # Raw graph data (350 nodes, 1,478 edges)
 ├── themes/                    # Thematic investment screens (auto-generated)
 │   ├── README.md              # Theme index
 │   ├── CoWoS.md               # 39 companies in CoWoS supply chain

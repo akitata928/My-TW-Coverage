@@ -112,7 +112,7 @@ def setup_stdout():
 
 
 # =============================================================================
-# Wikilink Normalization
+# Wikilink Aliases
 # =============================================================================
 
 # Canonical name mapping: alias -> canonical
@@ -131,7 +131,7 @@ WIKILINK_ALIASES = {
     "Unimicron": "欣興", "Delta": "台達電", "Lite-On": "光寶",
     "Largan": "大立光", "CTCI": "中鼎", "PTI": "力成",
     "WIN Semi": "穩懋", "Walsin": "華新科",
-    "日月光": "日月光投控",
+    "日月光": "日月光投控", "臻鼎": "臻鼎-KY",
     # Foreign companies: Chinese -> English
     "艾司摩爾": "ASML", "應用材料": "Applied Materials", "AMAT": "Applied Materials",
     "東京威力": "Tokyo Electron", "TEL": "Tokyo Electron",
@@ -159,31 +159,6 @@ WIKILINK_ALIASES = {
 }
 
 
-def normalize_wikilinks(content):
-    """Normalize all wikilinks in content to canonical names.
-    Also collapses duplicate parentheticals like [[X]] ([[X]]).
-    Only operates on text before 財務概況 to protect financial tables.
-    """
-    parts = content.split("## 財務概況")
-    if len(parts) < 2:
-        return content
-
-    text = parts[0]
-
-    # Step 1: Replace alias wikilinks with canonical names
-    for alias, canonical in WIKILINK_ALIASES.items():
-        text = text.replace("[[" + alias + "]]", "[[" + canonical + "]]")
-
-    # Step 2: Collapse [[X]] ([[X]]) duplicate parentheticals
-    text = re.sub(
-        r"\[\[([^\]]+)\]\]\s*[\(（]\[\[([^\]]+)\]\][\)）]",
-        lambda m: f"[[{m.group(1)}]]" if m.group(1) == m.group(2) else m.group(0),
-        text,
-    )
-
-    return text + "## 財務概況" + parts[1]
-
-
 # =============================================================================
 # Category Classification (shared by build_wikilink_index, build_themes, build_network)
 # =============================================================================
@@ -191,23 +166,41 @@ def normalize_wikilinks(content):
 TECH_TERMS = {
     "AI", "PCB", "5G", "HBM", "CoWoS", "InFO", "EUV", "CPO", "FOPLP",
     "VCSEL", "EML", "MLCC", "MOSFET", "IGBT", "DRAM", "NAND", "SSD",
-    "DDR5", "DDR4", "PCIe", "USB", "WiFi", "Bluetooth", "OLED", "AMOLED",
-    "Mini LED", "Micro LED", "MCU", "SoC", "ASIC", "FPGA", "RF", "IC",
-    "LED", "LCD", "TFT", "CMP", "CVD", "PVD", "ALD", "AOI", "SMT",
-    "BGA", "QFN", "SOP", "ABF 載板", "BT 載板", "ABF", "SerDes", "PMIC",
-    "LDO", "NOR Flash", "NAND Flash", "矽光子", "光收發模組",
+    "DDR5", "DDR4", "PCIe", "USB", "Wi-Fi", "Bluetooth",
+    "OLED", "AMOLED", "Mini LED", "Micro LED",
+    "MCU", "SoC", "ASIC", "FPGA", "RF", "IC", "LED", "LCD", "TFT",
+    "CMP", "CVD", "PVD", "ALD", "AOI", "SMT", "BGA", "QFN", "SOP",
+    "ABF 載板", "BT 載板", "ABF", "SerDes", "PMIC", "LDO",
+    "TSV", "RDL", "WLCSP", "FC-BGA", "FCCSP",
+    "NOR Flash", "NAND Flash", "eMMC", "UFS",
+    "MEMS", "CIS", "ToF", "LiDAR", "TFT-LCD",
+    "矽光子", "光收發模組",
+    "磊晶", "蝕刻", "微影", "封裝測試", "晶圓代工",
+    "2.5D 封裝", "3D 封裝", "第三代半導體",
 }
 
 MATERIAL_TERMS = {
-    "碳化矽", "氮化鎵", "磷化銦", "砷化鎵", "矽晶圓", "銅箔", "玻纖布",
-    "光阻液", "研磨液", "超純水", "氦氣", "氖氣", "鈦酸鋇", "聚醯亞胺",
+    "碳化矽", "氮化鎵", "磷化銦", "砷化鎵", "矽晶圓",
+    "銅箔", "玻纖布", "光阻液", "研磨液", "超純水",
+    "氦氣", "氖氣", "鈦酸鋇", "聚醯亞胺",
     "導線架", "探針卡", "BT 樹脂", "銀漿", "銅漿", "氧化鋁",
 }
 
 APPLICATION_TERMS = {
-    "AI 伺服器", "電動車", "物聯網", "資料中心", "低軌衛星", "5G",
-    "智慧家庭", "車用電子", "消費電子", "綠能", "太陽能", "風電",
-    "儲能系統", "離岸風電", "自動駕駛", "智慧城市", "行車記錄器", "無人機",
+    "AI 伺服器", "電動車", "物聯網", "資料中心", "低軌衛星",
+    "智慧家庭", "車用電子", "綠能", "太陽能",
+    "風電", "儲能系統", "離岸風電", "自動駕駛", "智慧城市",
+    "行車記錄器", "無人機",
+}
+
+# Category words that were wikilinked despite CLAUDE.md rule 1 (wikilinks must
+# be specific proper nouns). Kept as an explicit set so the graph colours them
+# honestly and audit can report the debt, instead of the CJK fallback below
+# silently filing them as Taiwan companies.
+GENERIC_TERMS = {
+    "半導體", "伺服器", "記憶體", "散熱", "自動化", "網通", "連接器",
+    "被動元件", "面板", "電源供應器", "IC 設計", "工業電腦",
+    "消費電子", "消費性電子", "雲端服務", "機器人", "光通訊", "儲能",
 }
 
 CATEGORY_COLORS = {
@@ -216,6 +209,7 @@ CATEGORY_COLORS = {
     "technology": "#2ecc71",
     "material": "#f39c12",
     "application": "#9b59b6",
+    "generic": "#7f8c8d",
 }
 
 CATEGORY_LABELS = {
@@ -224,6 +218,7 @@ CATEGORY_LABELS = {
     "technology": "技術/標準",
     "material": "材料/基板",
     "application": "終端應用",
+    "generic": "泛稱 (待收斂)",
 }
 
 
@@ -240,9 +235,97 @@ def classify_wikilink(name):
         return "material"
     if name in APPLICATION_TERMS:
         return "application"
+    if name in GENERIC_TERMS:
+        return "generic"
     if is_cjk(name):
         return "taiwan_company"
     return "international_company"
+
+
+# =============================================================================
+# Wikilink Normalization
+# =============================================================================
+
+# Preferred surface form for entities that appeared under several spellings.
+# Only the winner is listed: the index below matches any case/separator variant.
+CANONICAL_FORMS = (
+    "AI 伺服器", "3D 列印", "Aisin", "ASICS", "Coach", "DeWalt", "E-Bike",
+    "Elan", "Epson", "Fanuc", "GAP", "Hill-Rom", "Hoka", "Honda", "HOYA",
+    "IC 載板", "IP Camera", "JCPenney", "Lululemon", "Micro LED", "Momo",
+    "Nichicon", "Nippon Chemi-Con", "Ohara", "Omron", "ON Semi", "Osram",
+    "Pfaff", "PING", "PUMA", "PU 合成皮", "Rohm", "rPET", "Schott", "Shimano",
+    "Singer", "Tata", "TFT-LCD", "Uniqlo", "VeriFone", "Visa", "vivo",
+    "Williams-Sonoma", "Yamaha", "Zara",
+)
+
+# Case carries meaning for these, so they are kept out of the folding index:
+# [[SOC]] in 6690_安碁資訊 is a security operations centre, not [[SoC]].
+CASE_SENSITIVE_TERMS = {"SoC"}
+
+WIKILINK_RE = re.compile(r"\[\[([^\[\]]+)\]\]")
+
+# discover.py used to tag a bare substring that already sat inside a link,
+# producing one level of nesting such as [[AI[[伺服器]]]] or [[精[[聯電]]子]].
+# Both the repair pass and every write path flatten it back to a single link.
+_NESTED_WIKILINK_RE = re.compile(r"\[\[(?:[^\[\]]|\[\[[^\[\]]*\]\])*?\]\]")
+
+
+def _surface_key(name):
+    """Case- and separator-insensitive key used to merge spelling variants."""
+    return re.sub(r"[\s\-_·.]", "", name).lower()
+
+
+# Any registered canonical name also matches its own variants, so "Nvidia",
+# "MicroLED", and "AI伺服器" collapse without one alias entry per spelling.
+_CANONICAL_BY_KEY = {}
+for _name, _canonical in (
+    list(WIKILINK_ALIASES.items())
+    + [(c, c) for c in WIKILINK_ALIASES.values()]
+    + [(c, c) for c in CANONICAL_FORMS]
+    + [(t, t) for t in TECH_TERMS | MATERIAL_TERMS | APPLICATION_TERMS]
+):
+    if _canonical in CASE_SENSITIVE_TERMS:
+        continue
+    _CANONICAL_BY_KEY.setdefault(_surface_key(_name), _canonical)
+
+
+def canonical_wikilink(name):
+    """Map a wikilink surface form to its canonical name."""
+    return _CANONICAL_BY_KEY.get(_surface_key(name), name)
+
+
+def flatten_nested_wikilinks(text):
+    """Collapse a link that swallowed another link: [[A[[B]]C]] -> [[ABC]]."""
+
+    def repl(m):
+        inner = m.group(0)[2:-2]
+        if "[[" not in inner:
+            return m.group(0)
+        return "[[" + inner.replace("[[", "").replace("]]", "") + "]]"
+
+    return _NESTED_WIKILINK_RE.sub(repl, text)
+
+
+def normalize_wikilinks(content):
+    """Normalize all wikilinks in content to canonical names.
+
+    Flattens nested links, maps aliases and spelling variants to the canonical
+    form, and collapses duplicate parentheticals like [[X]] ([[X]]).
+    Only operates on text before 財務概況 to protect financial tables.
+    """
+    head, sep, tail = content.partition("## 財務概況")
+
+    head = flatten_nested_wikilinks(head)
+    head = WIKILINK_RE.sub(lambda m: "[[" + canonical_wikilink(m.group(1)) + "]]", head)
+
+    # Collapse [[X]] ([[X]]) duplicate parentheticals
+    head = re.sub(
+        r"\[\[([^\]]+)\]\]\s*[\(（]\[\[([^\]]+)\]\][\)）]",
+        lambda m: f"[[{m.group(1)}]]" if m.group(1) == m.group(2) else m.group(0),
+        head,
+    )
+
+    return head + sep + tail
 
 
 # =============================================================================

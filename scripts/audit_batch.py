@@ -14,7 +14,10 @@ import re
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from utils import REPORTS_DIR, TASK_FILE, get_batch_tickers, setup_stdout
+from utils import (
+    REPORTS_DIR, TASK_FILE, get_batch_tickers, setup_stdout,
+    WIKILINK_RE, GENERIC_TERMS, find_ticker_files, get_ticker_from_filename,
+)
 
 # --- Quality Rules (aligned with CLAUDE.md Golden Rules) ---
 
@@ -45,13 +48,44 @@ ENGLISH_INDICATORS = [
 ]
 
 
+# A link that swallowed another link, e.g. [[AI[[伺服器]]]]. Repairable with
+# scripts/normalize_reports.py; audited so it can never silently return.
+NESTED_WIKILINK_RE = re.compile(r"\[\[(?:[^\[\]]|\[\[[^\[\]]*\]\])*?\]\]")
+
+
 def extract_wikilinks(content):
-    return re.findall(r"\[\[([^\]]+)\]\]", content)
+    return WIKILINK_RE.findall(content)
+
+
+def find_nested_wikilinks(content):
+    return [m for m in NESTED_WIKILINK_RE.findall(content) if "[[" in m[2:-2]]
+
+
+_known_companies = None
+
+
+def known_companies():
+    """Company names the database itself covers, taken from filenames.
+
+    The markers below are substring matches, so 和潤企業 and 飛寶企業 look
+    generic even though 企業 is part of their registered name. A name this
+    database has a report for is a proper noun by definition.
+    """
+    global _known_companies
+    if _known_companies is None:
+        _known_companies = {
+            get_ticker_from_filename(path)[1]
+            for path in find_ticker_files().values()
+        }
+    return _known_companies
 
 
 def find_generic_wikilinks(wikilinks):
     generic = []
+    covered = known_companies()
     for wl in wikilinks:
+        if wl in covered:
+            continue
         for marker in GENERIC_WIKILINK_MARKERS:
             if marker in wl:
                 generic.append(wl)
@@ -110,12 +144,17 @@ def check_english(content):
 
 
 def audit_ticker(content):
-    """Run all quality checks. Returns (is_clean, issues_list)."""
+    """Run all quality checks. Returns (is_clean, issues, warnings).
+
+    Issues fail the audit. Warnings record known debt that is a content
+    decision rather than a defect, so the score stays comparable.
+    """
     issues = []
+    warnings = []
 
     if len(content) < 200:
         issues.append("Content too short (<200 chars)")
-        return False, issues
+        return False, issues, warnings
 
     for ph in PLACEHOLDER_STRINGS:
         if ph in content:
@@ -138,9 +177,19 @@ def audit_ticker(content):
     if generic:
         issues.append(f"Generic wikilinks ({len(generic)}): {generic}")
 
+    nested = find_nested_wikilinks(content)
+    if nested:
+        issues.append(f"Malformed nested wikilinks ({len(nested)}): {nested}")
+
     issues.extend(check_section_depth(content))
 
-    return len(issues) == 0, issues
+    category_words = sorted(set(wikilinks) & GENERIC_TERMS)
+    if category_words:
+        warnings.append(
+            f"Category-word wikilinks ({len(category_words)}): {category_words}"
+        )
+
+    return len(issues) == 0, issues, warnings
 
 
 def find_batch_files(tickers):
@@ -164,7 +213,7 @@ def audit_batch(batch_num, verbose=False):
     print(f"Rules: min {MIN_WIKILINKS} wikilinks, no generics, no placeholders, no English")
     print("=" * 60)
 
-    clean, enrichment, quality_fix, missing = [], [], [], []
+    clean, enrichment, quality_fix, missing, warned = [], [], [], [], []
     found = find_batch_files(tickers)
 
     for ticker in tickers:
@@ -176,13 +225,17 @@ def audit_batch(batch_num, verbose=False):
             with open(found[ticker], "r", encoding="utf-8") as f:
                 content = f.read()
 
-            is_clean, issues = audit_ticker(content)
+            is_clean, issues, warnings = audit_ticker(content)
+            if warnings:
+                warned.append(ticker)
 
             if is_clean:
                 clean.append(ticker)
                 if verbose:
                     wl_count = len(extract_wikilinks(content))
                     print(f"  {ticker}: CLEAN ({wl_count} wikilinks)")
+                    for warning in warnings:
+                        print(f"    ! {warning}")
             else:
                 has_placeholder = any(ph in content for ph in PLACEHOLDER_STRINGS)
                 has_english = check_english(content) is not None
@@ -199,6 +252,8 @@ def audit_batch(batch_num, verbose=False):
                     print(f"  {ticker}: {cat}")
                     for issue in issues:
                         print(f"    - {issue}")
+                    for warning in warnings:
+                        print(f"    ! {warning}")
 
         except Exception as e:
             print(f"Error reading {found[ticker]}: {e}")
@@ -214,6 +269,11 @@ def audit_batch(batch_num, verbose=False):
     total = len(tickers)
     pct = len(clean) / total * 100 if total > 0 else 0
     print(f"\nScore: {len(clean)}/{total} ({pct:.0f}%) pass quality audit")
+    if warned:
+        print(
+            f"Warning: {len(warned)} ticker(s) wikilink a category word "
+            "(CLAUDE.md rule 1) — run with -v to list them"
+        )
 
 
 def audit_all_completed(verbose=False):
@@ -233,7 +293,7 @@ def audit_all_completed(verbose=False):
     print(f"Auditing {len(completed)} completed batches: {', '.join(completed)}")
     print("=" * 60)
 
-    total_clean = total_tickers = 0
+    total_clean = total_tickers = total_warned = 0
     all_issues = []
 
     for batch_num in completed:
@@ -250,8 +310,10 @@ def audit_all_completed(verbose=False):
             try:
                 with open(found[ticker], "r", encoding="utf-8") as f:
                     file_content = f.read()
-                is_clean, issues = audit_ticker(file_content)
+                is_clean, issues, warnings = audit_ticker(file_content)
                 total_tickers += 1
+                if warnings:
+                    total_warned += 1
                 if is_clean:
                     total_clean += 1
                 else:
@@ -272,6 +334,7 @@ def audit_all_completed(verbose=False):
     pct = total_clean / total_tickers * 100 if total_tickers > 0 else 0
     print(f"OVERALL: {total_clean}/{total_tickers} ({pct:.0f}%) pass quality audit")
     print(f"Total tickers needing quality fix: {len(all_issues)}")
+    print(f"Total tickers wikilinking a category word: {total_warned}")
 
 
 if __name__ == "__main__":

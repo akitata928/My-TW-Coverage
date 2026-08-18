@@ -1,4 +1,4 @@
-# 3673 - TPK-KY
+# 3673 - [[TPK-KY]]
 
 ## 業務簡介
 **板塊:** Technology

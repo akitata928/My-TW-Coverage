@@ -152,6 +152,7 @@ Pilot_Reports/{Industry}/{Ticker}_{ChineseName}.md
 | Audit | `python scripts/audit_batch.py <batch> -v` | Quality check (single batch) |
 | Audit All | `python scripts/audit_batch.py --all -v` | Quality check (all completed batches) |
 | Wikilink Index | `python scripts/build_wikilink_index.py` | Rebuild WIKILINKS.md from all reports |
+| Normalize | `python scripts/normalize_reports.py [scope]` | Merge wikilink spelling variants, repair malformed links |
 | Update Valuation | `python scripts/update_valuation.py [scope]` | Refresh 估值指標 only (fast, no financials) |
 | Discover | `python scripts/discover.py "<buzzword>" [--smart] [--apply]` | Reverse search: find companies by buzzword |
 | Thematic Screens | `python scripts/build_themes.py` | Generate themes/ supply chain maps |

@@ -18,6 +18,9 @@ import re
 import sys
 from collections import defaultdict
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from utils import WIKILINK_RE
+
 REPORTS_DIR = os.path.join(os.path.dirname(__file__), "..", "Pilot_Reports")
 THEMES_DIR = os.path.join(os.path.dirname(__file__), "..", "themes")
 
@@ -172,7 +175,7 @@ def scan_wikilinks():
 
             # Find all wikilinks in non-financial sections
             text = sections["desc"] + sections["supply_chain"] + sections["customers"]
-            for wl in set(re.findall(r"\[\[([^\]]+)\]\]", text)):
+            for wl in set(WIKILINK_RE.findall(text)):
                 # Determine role from context
                 role = "related"
                 if wl in sections["supply_chain"]:
@@ -344,8 +347,12 @@ def main():
             themes_built[tag] = count
             print(f"  {tag}: {count} companies -> {safe_name}.md")
 
-    # Build index
-    index = build_index(themes_built)
+    # Index every theme that has companies. Keying it off themes_built instead
+    # would drop 19 of 20 entries whenever a single theme is rebuilt.
+    all_themes = {
+        tag: len(wl_map[tag]) for tag in THEME_DEFINITIONS if wl_map.get(tag)
+    }
+    index = build_index(all_themes)
     with open(os.path.join(THEMES_DIR, "README.md"), "w", encoding="utf-8") as f:
         f.write(index)
 

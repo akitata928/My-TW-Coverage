@@ -1,4 +1,4 @@
-# 6456_GIS-KY
+# 6456 - [[GIS-KY]]
 
 ## 業務簡介
 **板塊:** Technology

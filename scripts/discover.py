@@ -29,7 +29,39 @@ import subprocess
 from collections import defaultdict
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from utils import REPORTS_DIR, PROJECT_ROOT, setup_stdout
+from utils import REPORTS_DIR, PROJECT_ROOT, setup_stdout, WIKILINK_RE
+
+# Splitting on a capturing group keeps existing [[links]] as the odd segments,
+# so a buzzword can only ever be tagged in the plain-text gaps between them.
+_WIKILINK_SPLIT_RE = re.compile(r"(\[\[[^\[\]]*\]\])")
+
+
+def _bare_pattern(buzzword):
+    """Match the buzzword only when it is not part of a longer name.
+
+    The guards are deliberately asymmetric. A Latin character on either side
+    means the buzzword is a fragment of a longer token, so both sides are
+    refused — that is what turned AI伺服器 into AI[[伺服器]] in 49 reports.
+    A CJK character on the right usually continues a compound noun (聯電 in
+    群聯電子), so it is refused too; on the left it is ordinary prose
+    (採用液冷散熱), so refusing it there would make --apply match nothing.
+    """
+    return re.compile(
+        r"(?<![A-Za-z0-9])"
+        + re.escape(buzzword)
+        + r"(?![A-Za-z0-9\u4e00-\u9fff])"
+    )
+
+
+def iter_bare_mentions(text, buzzword):
+    """Yield (start, end) spans of the buzzword that sit outside any wikilink."""
+    pattern = _bare_pattern(buzzword)
+    offset = 0
+    for i, segment in enumerate(_WIKILINK_SPLIT_RE.split(text)):
+        if i % 2 == 0:
+            for m in pattern.finditer(segment):
+                yield offset + m.start(), offset + m.end()
+        offset += len(segment)
 
 # Sector groups for smart filtering
 TECH_SECTORS = {
@@ -141,19 +173,19 @@ def search_reports(buzzword, sectors_filter=None):
             text = content.split("## 財務概況")[0] if "## 財務概況" in content else content
 
             # Check for linked mentions [[buzzword]]
-            linked_count = len(re.findall(r"\[\[" + re.escape(buzzword) + r"\]\]", text))
+            linked_count = sum(1 for wl in WIKILINK_RE.findall(text) if wl == buzzword)
 
-            # Check for bare mentions (not inside [[ ]])
-            bare_pattern = r"(?<!\[\[)" + re.escape(buzzword) + r"(?!\]\])"
-            bare_matches = list(re.finditer(bare_pattern, text))
+            # Check for bare mentions, using the same rule apply_wikilinks uses
+            # so the reported count matches what --apply would actually link.
+            bare_matches = list(iter_bare_mentions(text, buzzword))
             bare_count = len(bare_matches)
 
             if linked_count > 0 or bare_count > 0:
                 # Extract context snippets for bare mentions
                 contexts = []
-                for match in bare_matches[:3]:  # Max 3 snippets
-                    start = max(0, match.start() - 30)
-                    end = min(len(text), match.end() + 30)
+                for m_start, m_end in bare_matches[:3]:  # Max 3 snippets
+                    start = max(0, m_start - 30)
+                    end = min(len(text), m_end + 30)
                     snippet = text[start:end].replace("\n", " ").strip()
                     contexts.append(f"...{snippet}...")
 
@@ -200,11 +232,13 @@ def apply_wikilinks(results, buzzword):
         if len(parts) < 2:
             continue
 
-        text = parts[0]
-        # Replace bare mentions with wikilinked version
-        # Be careful not to double-link
-        pattern = r"(?<!\[\[)" + re.escape(buzzword) + r"(?!\]\])(?![A-Za-z\u4e00-\u9fff])"
-        new_text, count = re.subn(pattern, f"[[{buzzword}]]", text)
+        pattern = _bare_pattern(buzzword)
+        segments = _WIKILINK_SPLIT_RE.split(parts[0])
+        count = 0
+        for i in range(0, len(segments), 2):
+            segments[i], n = pattern.subn(f"[[{buzzword}]]", segments[i])
+            count += n
+        new_text = "".join(segments)
 
         if count > 0:
             content = new_text + "## 財務概況" + parts[1]

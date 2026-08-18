@@ -1,4 +1,4 @@
-# 6933_AMAX-KY
+# 6933 - [[AMAX-KY]]
 
 ## 業務簡介
 **板塊:** Technology

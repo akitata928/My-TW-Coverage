@@ -7,96 +7,69 @@ Usage:
 This scans every .md file under Pilot_Reports/ and builds a categorized
 index of all [[wikilinks]] with occurrence counts. Run after any enrichment
 update to keep the index current.
+
+Classification comes from utils.classify_wikilink so this index, the theme
+pages, and the network graph always agree on what a wikilink is.
 """
 
 import os
 import re
 import sys
+from collections import Counter
 
-REPORTS_DIR = os.path.join(os.path.dirname(__file__), "..", "Pilot_Reports")
-OUTPUT_FILE = os.path.join(os.path.dirname(__file__), "..", "WIKILINKS.md")
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from utils import (
+    REPORTS_DIR, PROJECT_ROOT, setup_stdout,
+    WIKILINK_RE, classify_wikilink,
+)
 
-# --- Classification sets ---
+OUTPUT_FILE = os.path.join(PROJECT_ROOT, "WIKILINKS.md")
 
-TECH_TERMS = {
-    "AI", "PCB", "5G", "HBM", "CoWoS", "InFO", "EUV", "CPO", "FOPLP",
-    "VCSEL", "EML", "MLCC", "MOSFET", "IGBT", "DRAM", "NAND", "SSD",
-    "DDR5", "DDR4", "PCIe", "USB", "WiFi", "Bluetooth",
-    "OLED", "AMOLED", "Mini LED", "Micro LED",
-    "MCU", "SoC", "ASIC", "FPGA", "RF", "IC", "LED", "LCD", "TFT",
-    "CMP", "CVD", "PVD", "ALD", "AOI", "SMT", "BGA", "QFN", "SOP",
-    "ABF 載板", "BT 載板", "ABF", "SerDes", "PMIC", "LDO",
-    "TSV", "RDL", "WLCSP", "FC-BGA", "FCCSP",
-    "NOR Flash", "NAND Flash", "eMMC", "UFS",
-    "MEMS", "CIS", "ToF", "LiDAR",
-    "矽光子", "光收發模組",
-    "磊晶", "蝕刻", "微影", "封裝測試", "晶圓代工",
-    "2.5D 封裝", "3D 封裝",
-}
+# Companies are long-tail: a name mentioned by a single report says something
+# about that report, not about the graph, so the index lists only linked ones.
+MIN_COMPANY_MENTIONS = 2
 
-MATERIAL_TERMS = {
-    "碳化矽", "氮化鎵", "磷化銦", "砷化鎵", "矽晶圓",
-    "銅箔", "玻纖布", "光阻液", "研磨液", "超純水",
-    "氦氣", "氖氣", "鈦酸鋇", "聚醯亞胺",
-    "導線架", "探針卡", "BT 樹脂", "銀漿", "銅漿", "氧化鋁",
-}
-
-APP_TERMS = {
-    "AI 伺服器", "電動車", "物聯網", "資料中心", "低軌衛星",
-    "智慧家庭", "車用電子", "消費電子", "綠能", "太陽能",
-    "風電", "儲能系統", "離岸風電", "自動駕駛", "智慧城市",
-    "行車記錄器", "無人機",
-}
-
-
-def is_cjk(s):
-    """Check if string is predominantly CJK characters."""
-    return sum(1 for c in s if "\u4e00" <= c <= "\u9fff") > len(s) * 0.3
+SECTION_TITLES = [
+    ("technology", "Technologies & Standards", None),
+    ("material", "Materials & Substrates", None),
+    ("application", "Applications & End Markets", None),
+    ("generic", "Generic Terms (should be plain text — see CLAUDE.md rule 1)", None),
+    ("international_company", "International Companies", 200),
+    ("taiwan_company", "Taiwan Companies", 300),
+]
 
 
 def collect_wikilinks():
-    """Scan all reports and return {name: count} dict."""
-    wikilinks = {}
+    """Scan all reports. Returns (Counter of mentions, number of reports)."""
+    mentions = Counter()
+    reports = 0
     for root, dirs, files in os.walk(REPORTS_DIR):
         for f in files:
-            if not f.endswith(".md"):
+            if not (f.endswith(".md") and re.match(r"^\d{4}", f)):
                 continue
+            reports += 1
             with open(os.path.join(root, f), "r", encoding="utf-8") as fh:
-                content = fh.read()
-            for wl in re.findall(r"\[\[([^\]]+)\]\]", content):
-                wikilinks[wl] = wikilinks.get(wl, 0) + 1
-    return wikilinks
+                content = fh.read().split("## 財務概況")[0]
+            mentions.update(WIKILINK_RE.findall(content))
+    return mentions, reports
 
 
-def categorize(wikilinks):
-    """Split wikilinks into categories."""
-    technologies = {}
-    materials = {}
-    applications = {}
-    companies_tw = {}
-    companies_intl = {}
-
-    for name, count in wikilinks.items():
-        if name in TECH_TERMS:
-            technologies[name] = count
-        elif name in MATERIAL_TERMS:
-            materials[name] = count
-        elif name in APP_TERMS:
-            applications[name] = count
-        elif is_cjk(name) and count >= 2:
-            companies_tw[name] = count
-        elif not is_cjk(name) and count >= 2:
-            companies_intl[name] = count
-        # Single-mention entries are omitted from the index
-
-    return technologies, materials, applications, companies_intl, companies_tw
+def categorize(mentions):
+    """Group wikilinks by category. Returns {category: {name: count}}."""
+    grouped = {key: {} for key, _, _ in SECTION_TITLES}
+    for name, count in mentions.items():
+        category = classify_wikilink(name)
+        if category.endswith("_company") and count < MIN_COMPANY_MENTIONS:
+            continue
+        grouped[category][name] = count
+    return grouped
 
 
 def build_section(title, items, limit=None):
     """Build a markdown section from a dict."""
     lines = []
-    sorted_items = sorted(items.items(), key=lambda x: -x[1])
-    if limit:
+    sorted_items = sorted(items.items(), key=lambda x: (-x[1], x[0]))
+    if limit and len(sorted_items) > limit:
         shown = sorted_items[:limit]
         total_label = f" ({len(items)} total, showing top {limit})"
     else:
@@ -112,37 +85,31 @@ def build_section(title, items, limit=None):
 
 
 def main():
-    if sys.platform == "win32":
-        sys.stdout.reconfigure(encoding="utf-8")
+    setup_stdout()
 
-    wikilinks = collect_wikilinks()
-    tech, mat, app, intl, tw = categorize(wikilinks)
+    mentions, reports = collect_wikilinks()
+    grouped = categorize(mentions)
 
     lines = [
         "# Wikilink Index",
         "",
-        f"> **{len(wikilinks)} unique wikilinks** across 1,733 ticker reports. Auto-generated — do not edit manually.",
-        f"> Regenerate: `python scripts/build_wikilink_index.py`",
+        f"> **{len(mentions)} unique wikilinks** across {reports:,} ticker reports. "
+        "Auto-generated — do not edit manually.",
+        "> Regenerate: `python scripts/build_wikilink_index.py`",
         "",
         "---",
         "",
     ]
 
-    lines.extend(build_section("Technologies & Standards", tech))
-    lines.extend(build_section("Materials & Substrates", mat))
-    lines.extend(build_section("Applications & End Markets", app))
-    lines.extend(build_section("International Companies", intl, limit=200))
-    lines.extend(build_section("Taiwan Companies", tw, limit=300))
+    for key, title, limit in SECTION_TITLES:
+        lines.extend(build_section(title, grouped[key], limit))
 
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
         f.write("\n".join(lines))
 
-    print(f"Generated WIKILINKS.md: {len(wikilinks)} unique wikilinks")
-    print(f"  Technologies: {len(tech)}")
-    print(f"  Materials: {len(mat)}")
-    print(f"  Applications: {len(app)}")
-    print(f"  International companies: {len(intl)}")
-    print(f"  Taiwan companies: {len(tw)}")
+    print(f"Generated WIKILINKS.md: {len(mentions)} unique wikilinks, {reports} reports")
+    for key, title, _ in SECTION_TITLES:
+        print(f"  {title.split(' (')[0]}: {len(grouped[key])}")
 
 
 if __name__ == "__main__":

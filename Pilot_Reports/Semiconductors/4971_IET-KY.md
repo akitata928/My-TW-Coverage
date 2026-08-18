@@ -1,4 +1,4 @@
-# 4971 - IET-KY
+# 4971 - [[IET-KY]]
 
 ## 業務簡介
 **板塊:** Technology
