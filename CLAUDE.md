@@ -184,4 +184,5 @@ Pilot_Reports/{Industry}/{Ticker}_{ChineseName}.md
 
 ### Batch Progress
 - **Batch definitions & progress**: `task.md`
+- **Graph-quality debt & upgrade roadmap**: `todo.md`
 - **Batch status**: `[x]` = completed, `[ ]` = pending

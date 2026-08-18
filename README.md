@@ -251,6 +251,7 @@ The database contains **6,099 unique wikilinks** across three categories:
 ├── CLAUDE.md                  # Project rules and quality standards
 ├── WIKILINKS.md               # Browsable wikilink index (auto-generated)
 ├── task.md                    # Batch definitions and progress tracking
+├── todo.md                    # Graph-quality debt and upgrade roadmap
 ├── requirements.txt           # Python dependencies
 ├── README.md
 ├── scripts/
