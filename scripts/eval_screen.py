@@ -52,6 +52,23 @@ PARAPHRASE = [
 ]
 
 
+# Frozen before the synonym table was written, and not consulted while writing
+# it. PARAPHRASE above overlaps with the theme names the table is derived from,
+# so only this set measures the gain on wording the table never saw.
+HELD_OUT = [
+    ("先進製程", "EUV"),
+    ("功率半導體", "碳化矽"),
+    ("散熱模組", "液冷散熱"),
+    ("光收發", "矽光子"),
+    ("太空通訊", "低軌衛星"),
+    ("記憶體模組", "HBM"),
+    ("車用晶片", "電動車"),
+    ("封裝基板", "ABF 載板"),
+    ("晶圓材料", "矽晶圓"),
+    ("微影材料", "光阻液"),
+]
+
+
 class Args:
     def __init__(self, query, limit):
         self.query = query
@@ -113,9 +130,9 @@ def main():
     corpus = Corpus()
     direct = report(corpus, f"直接查詢（字面相符）— top {args.k}", DIRECT, args.k)
     para = report(corpus, f"換句話說（字面不符）— top {args.k}", PARAPHRASE, args.k)
+    held = report(corpus, f"保留題（建表時未參考）— top {args.k}", HELD_OUT, args.k)
 
-    print(f"\n達成率落差：直接 {direct:.0%} vs 換句話說 {para:.0%}"
-          f"（相差 {direct - para:.0%}）")
+    print(f"\n達成率：直接 {direct:.0%} ｜ 換句話說 {para:.0%} ｜ 保留題 {held:.0%}")
     print("「達成率」= 命中數 ÷ min(k, 應命中數)，扣掉了 top-k 造成的上限。")
     print("這個落差就是語意索引能補、而字面檢索補不了的部分。")
 
