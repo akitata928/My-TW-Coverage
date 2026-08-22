@@ -516,6 +516,62 @@ def update_metadata(content, market_cap, enterprise_value):
 
 
 # =============================================================================
+# Financial Parsing (for screening)
+# =============================================================================
+
+# The 估值指標 table is rendered right-aligned with a fixed column order, so the
+# values row is read positionally rather than by header.
+_VALUATION_ROW = re.compile(
+    r"### 估值指標[^\n]*\n\|[^\n]*\n\|[-|\s]*\n\|([^\n]*)\|"
+)
+_VALUATION_KEYS = ("pe", "forward_pe", "ps", "pb", "ev_ebitda")
+
+_ANNUAL_TABLE = re.compile(r"### 年度關鍵財務數據[^\n]*\n(.*?)(?=\n###|\n##|\Z)", re.DOTALL)
+
+# Latest period is the first numeric column of the annual table.
+_MARGIN_ROWS = {
+    "gross_margin": "Gross Margin (%)",
+    "operating_margin": "Operating Margin (%)",
+    "net_margin": "Net Margin (%)",
+    "revenue": "Revenue",
+}
+
+
+def _as_float(cell):
+    cell = cell.strip().replace(",", "")
+    try:
+        return float(cell)
+    except ValueError:
+        return None
+
+
+def parse_financials(content):
+    """Extract the screenable numbers from a report. Missing values are None."""
+    out = {k: None for k in _VALUATION_KEYS}
+    out.update({k: None for k in _MARGIN_ROWS})
+
+    match = _VALUATION_ROW.search(content)
+    if match:
+        cells = [c for c in match.group(1).split("|")]
+        for key, cell in zip(_VALUATION_KEYS, cells):
+            out[key] = _as_float(cell)
+
+    annual = _ANNUAL_TABLE.search(content)
+    if annual:
+        for line in annual.group(1).split("\n"):
+            cells = [c.strip() for c in line.strip().strip("|").split("|")]
+            if len(cells) < 2:
+                continue
+            for key, label in _MARGIN_ROWS.items():
+                if cells[0] == label:
+                    out[key] = _as_float(cells[1])
+
+    front = re.search(r"^market_cap: *(\d+)", content, re.M)
+    out["market_cap"] = float(front.group(1)) if front else None
+    return out
+
+
+# =============================================================================
 # Section Replacement
 # =============================================================================
 

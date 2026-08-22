@@ -194,6 +194,41 @@ Node colors: red = Taiwan company, blue = international, green = technology,
 orange = material, purple = application. A thicker edge means both companies'
 reports state the same relationship.
 
+### Screen by Topic, Supply Chain and Numbers
+
+`screen.py` is the query layer over everything above: it finds reports about a
+topic, walks the typed supply-chain edges out from there, and filters what is
+left by the financial tables.
+
+```bash
+python scripts/screen.py "液冷散熱"
+python scripts/screen.py "AI 伺服器" --gross-margin ">30" --pe "<25"
+python scripts/screen.py "NVIDIA" --hops 2 --direction up --min-hop 2
+python scripts/screen.py "矽光子" --json
+```
+
+Filters accept `>30`, `<=20`, `10-25` and cover `--pe`, `--forward-pe`, `--pb`,
+`--ps`, `--ev-ebitda`, `--gross-margin`, `--operating-margin`, `--net-margin`,
+`--market-cap` and `--revenue`.
+
+`--hops` is the part a keyword search cannot do — walking two steps upstream from
+NVIDIA reaches 富喬 (glass fibre) via 聯茂 (copper-clad laminate), and each row
+says which link it came through.
+
+Retrieval is BM25 over character bigrams, so it runs locally with no model, no
+API key and no network. That has a measured limit: it matches characters, not
+meaning.
+
+```bash
+python scripts/eval_screen.py        # recall and precision against the wikilinks
+```
+
+Scored against the database's own tags, queries whose wording matches the tag
+attain **100%** of the reachable companies at top-20 (82% precision). Queries
+that mean the same thing in different words — 水冷 for 液冷散熱, 高頻寬記憶體
+for HBM — attain only **34%** (27% precision). That 66-point gap is what a
+semantic index would close, and nothing else here will.
+
 ### Generate Thematic Investment Screens
 
 ```bash
@@ -225,6 +260,8 @@ These run 100% locally with Python + yfinance. No AI, no API cost.
 | Build Network | `python scripts/build_network.py` | Generate the directed supply-chain graph |
 | Build Wikilink Index | `python scripts/build_wikilink_index.py` | Rebuild WIKILINKS.md |
 | Build Obsidian Vault | `python scripts/build_obsidian_vault.py` | Rebuild entities/ so every `[[link]]` resolves |
+| Screen | `python scripts/screen.py "<topic>" [filters]` | Topic → supply chain → financial filters |
+| Evaluate Screening | `python scripts/eval_screen.py` | Recall/precision of the retrieval |
 | Normalize Wikilinks | `python scripts/normalize_reports.py [scope]` | Merge spelling variants, repair malformed links |
 
 ### Consumes Tokens — Claude Code Skills (Requires AI)
@@ -291,6 +328,8 @@ The database contains **6,095 unique wikilinks** across three categories:
 │   ├── normalize_reports.py   # Repair/merge wikilink surface forms
 │   ├── build_themes.py        # Generate thematic investment screens
 │   ├── relations.py           # Parse typed, directed supply-chain edges
+│   ├── screen.py              # Topic + supply chain + financial screening
+│   ├── eval_screen.py         # Retrieval recall/precision harness
 │   ├── build_network.py       # Generate the directed supply-chain graph
 │   └── generators/            # Historical base report generators
 ├── Pilot_Reports/             # 1,733 ticker reports across 98 sectors
