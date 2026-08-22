@@ -239,6 +239,12 @@ Measured at top-20 against the database's own tags:
 Attainment divides by `min(k, expected)`, so a tag with more companies than `k`
 is not scored as a retrieval failure.
 
+`scripts/eval_embeddings.py` measures whether a semantic index would close that
+last row, before installing one. A corpus-derived alternative was already tried
+and rejected: LSA over the same bigrams reached 13% on those queries alone but
+dropped direct queries to 84%, and contributed nothing under rank fusion. See
+[todo.md](todo.md).
+
 Read that last row before extending the table. Expansion is bounded by what
 someone thought to write down: it works for wording the table names and does
 essentially nothing otherwise, which is a different thing from a semantic index
@@ -280,6 +286,7 @@ These run 100% locally with Python + yfinance. No AI, no API cost.
 | Screen | `python scripts/screen.py "<topic>" [filters]` | Topic → supply chain → financial filters |
 | Evaluate Screening | `python scripts/eval_screen.py` | Recall/precision of the retrieval |
 | Inspect Synonyms | `python scripts/synonyms.py "<term>"` | Show how a query is widened |
+| Try Embeddings | `python scripts/eval_embeddings.py` | Optional: measure a semantic index before installing one |
 | Normalize Wikilinks | `python scripts/normalize_reports.py [scope]` | Merge spelling variants, repair malformed links |
 
 ### Consumes Tokens — Claude Code Skills (Requires AI)
