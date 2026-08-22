@@ -36,6 +36,7 @@ from utils import (
     parse_financials,
 )
 from relations import extract_relations, SUPPLIES
+from synonyms import SynonymIndex
 
 BM25_K1, BM25_B = 1.5, 0.75
 SEED_LIMIT = 40
@@ -78,6 +79,7 @@ class Corpus:
         self.company_of = {}     # entity name -> ticker, when it has a report
 
         df = Counter()
+        texts = []
         for root, _, files in os.walk(REPORTS_DIR):
             for f in sorted(files):
                 m = re.match(r"^(\d{4})_(.+)\.md$", f)
@@ -86,6 +88,7 @@ class Corpus:
                 ticker, company = m.group(1), m.group(2)
                 raw = open(os.path.join(root, f), "r", encoding="utf-8").read()
                 head = raw.split("## 財務概況")[0]
+                texts.append(head)
                 entities = set(WIKILINK_RE.findall(head))
 
                 self.company_of[company] = ticker
@@ -108,22 +111,28 @@ class Corpus:
         self.df = df
         self.n = len(self.reports)
         self.avg_len = sum(sum(r["tokens"].values()) for r in self.reports.values()) / max(self.n, 1)
+        self.synonyms = SynonymIndex(texts)
 
-    def bm25(self, query):
-        """Score every report against the query. Returns {ticker: score}."""
-        q = [t for t in set(tokenize(query)) if self.df.get(t)]
+    def bm25(self, terms):
+        """Score every report against weighted query terms. Returns {ticker: score}."""
+        weighted = Counter()
+        for phrase, weight in terms:
+            for token in set(tokenize(phrase)):
+                if self.df.get(token):
+                    weighted[token] = max(weighted[token], weight)
+
         scores = Counter()
-        for term in q:
-            idf = math.log(1 + (self.n - self.df[term] + 0.5) / (self.df[term] + 0.5))
+        for token, weight in weighted.items():
+            idf = math.log(1 + (self.n - self.df[token] + 0.5) / (self.df[token] + 0.5))
             for ticker, rep in self.reports.items():
-                tf = rep["tokens"].get(term)
+                tf = rep["tokens"].get(token)
                 if not tf:
                     continue
                 length = sum(rep["tokens"].values())
                 norm = tf * (BM25_K1 + 1) / (
                     tf + BM25_K1 * (1 - BM25_B + BM25_B * length / self.avg_len)
                 )
-                scores[ticker] += idf * norm
+                scores[ticker] += weight * idf * norm
         return scores
 
     def entity_seeds(self, query):
@@ -183,21 +192,42 @@ def parse_predicate(raw):
 
 
 def run(corpus, args):
-    scores = corpus.bm25(args.query) if args.query else Counter()
-    seeds = corpus.entity_seeds(args.query) if args.query else set()
+    if args.query:
+        terms = ([(args.query, 1.0)] if args.no_expand
+                 else corpus.synonyms.expand(args.query))
+    else:
+        terms = []
+    scores = corpus.bm25(terms) if terms else Counter()
+
+    # An expanded term that names a known entity seeds that entity too, so
+    # "先進封裝" reaches the reports tagged [[CoWoS]] and not only those whose
+    # characters happen to match.
+    seeds = {}
+    for phrase, weight in terms:
+        for entity in corpus.entity_seeds(phrase):
+            seeds[entity] = max(seeds.get(entity, 0), weight)
 
     # A report that links the named entity is a stronger signal than one that
     # merely scores well on characters, so it is boosted rather than ranked
     # against the text score.
     best = max(scores.values(), default=1.0) or 1.0
     hits = {}
-    for entity in seeds:
+    # Seed strength tracks how confident the expansion is. Giving a merely
+    # related tag the same boost as the queried tag lets 「CoWoS」 be answered
+    # with HBM companies, which measured as a drop from 100% to 46%.
+    for entity, weight in sorted(seeds.items(), key=lambda kv: -kv[1]):
+        boost = best * weight
         for ticker in corpus.by_entity[entity]:
-            hits[ticker] = {"score": best, "why": f"提及 [[{entity}]]", "hop": 0}
+            if hits.get(ticker, {}).get("score", 0) >= boost:
+                continue
+            hits[ticker] = {"score": boost, "why": f"提及 [[{entity}]]", "hop": 0}
 
     for ticker, score in scores.most_common(SEED_LIMIT):
         if ticker not in hits and score > 0:
             hits[ticker] = {"score": score, "why": "內文相符", "hop": 0}
+
+    if args.hops:
+        seeds = set(seeds)
 
     if args.hops and seeds:
         reached = walk(corpus, seeds, args.hops, args.direction)
@@ -255,6 +285,8 @@ def main():
     p.add_argument("--min-hop", type=int, default=0,
                    help="只看第 N 階之後，例如 --hops 2 --min-hop 2 就是「供應商的供應商」")
     p.add_argument("--json", action="store_true")
+    p.add_argument("--no-expand", action="store_true",
+                   help="關閉同義詞擴展，只用原始字串檢索")
     for flag in NUMERIC_FIELDS:
         p.add_argument(f"--{flag}", metavar="EXPR", help=f"{NUMERIC_FIELDS[flag]} 條件，如 >30 或 10-25")
     args = p.parse_args()

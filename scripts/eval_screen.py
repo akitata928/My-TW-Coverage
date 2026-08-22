@@ -70,8 +70,9 @@ HELD_OUT = [
 
 
 class Args:
-    def __init__(self, query, limit):
+    def __init__(self, query, limit, no_expand=False):
         self.query = query
+        self.no_expand = no_expand
         self.hops = 0
         self.direction = "up"
         self.limit = limit
@@ -79,11 +80,11 @@ class Args:
         self.filters = []
 
 
-def score(corpus, query, tag, k):
+def score(corpus, query, tag, k, no_expand=False):
     expected = corpus.by_entity.get(tag, set())
     if not expected:
         return None
-    got = {r["ticker"] for r in run(corpus, Args(query, k))}
+    got = {r["ticker"] for r in run(corpus, Args(query, k, no_expand))}
     hit = got & expected
     # A tag with more companies than k cannot be fully recalled at k, so the
     # raw figure would read as a failure of retrieval rather than of the cutoff.
@@ -99,40 +100,57 @@ def score(corpus, query, tag, k):
     }
 
 
-def report(corpus, title, cases, k):
+def report(corpus, title, cases, k, no_expand=False):
     print(f"\n{title}")
     print(f"{'查詢':<14}{'目標標籤':<12}{'應命中':>7}{'命中':>6}"
           f"{'召回率':>9}{'上限':>8}{'達成率':>9}{'精確率':>9}")
     print("-" * 78)
     recalls, precisions = [], []
+    split = {True: [], False: []}
     for query, tag in cases:
-        s = score(corpus, query, tag, k)
+        s = score(corpus, query, tag, k, no_expand)
         if not s:
             print(f"{query:<14}{tag:<12}  (標籤不存在，略過)")
             continue
         recalls.append(s["attained"])
         precisions.append(s["precision"])
-        print(f"{query:<14}{tag:<12}{s['expected']:>7}{s['hit']:>6}"
+        covered = corpus.synonyms.covered_manually(query, tag)
+        split[covered].append(s["attained"])
+        mark = "＊" if covered else "  "
+        print(f"{mark}{query:<12}{tag:<12}{s['expected']:>7}{s['hit']:>6}"
               f"{s['recall']:>8.0%}{s['ceiling']:>8.0%}{s['attained']:>8.0%}{s['precision']:>9.0%}")
     if recalls:
         print("-" * 78)
         print(f"{'平均達成率 / 精確率':<30}{'':>21}{sum(recalls)/len(recalls):>8.0%}"
               f"{sum(precisions)/len(precisions):>9.0%}")
-    return (sum(recalls) / len(recalls)) if recalls else 0.0
+        for covered, label in ((True, "＊人工表已涵蓋"), (False, "  人工表未涵蓋")):
+            if split[covered]:
+                avg = sum(split[covered]) / len(split[covered])
+                print(f"{label}（{len(split[covered])} 題）達成率 {avg:.0%}")
+    return {
+        "all": (sum(recalls) / len(recalls)) if recalls else 0.0,
+        "uncovered": (sum(split[False]) / len(split[False])) if split[False] else None,
+    }
 
 
 def main():
     setup_stdout()
     p = argparse.ArgumentParser()
     p.add_argument("--k", type=int, default=20, help="取前幾名計分")
+    p.add_argument("--no-expand", action="store_true", help="關閉同義詞擴展以取得基準線")
     args = p.parse_args()
 
     corpus = Corpus()
-    direct = report(corpus, f"直接查詢（字面相符）— top {args.k}", DIRECT, args.k)
-    para = report(corpus, f"換句話說（字面不符）— top {args.k}", PARAPHRASE, args.k)
-    held = report(corpus, f"保留題（建表時未參考）— top {args.k}", HELD_OUT, args.k)
+    direct = report(corpus, f"直接查詢（字面相符）— top {args.k}", DIRECT, args.k, args.no_expand)
+    para = report(corpus, f"換句話說（字面不符）— top {args.k}", PARAPHRASE, args.k, args.no_expand)
+    held = report(corpus, f"保留題（建表時未參考）— top {args.k}", HELD_OUT, args.k, args.no_expand)
 
-    print(f"\n達成率：直接 {direct:.0%} ｜ 換句話說 {para:.0%} ｜ 保留題 {held:.0%}")
+    print(f"\n達成率：直接 {direct['all']:.0%} ｜ 換句話說 {para['all']:.0%} "
+          f"｜ 保留題 {held['all']:.0%}")
+    unc = [g["uncovered"] for g in (para, held) if g["uncovered"] is not None]
+    if unc:
+        print(f"人工表未涵蓋的換句話說題目：達成率 {sum(unc)/len(unc):.0%}"
+              " ← 這才是一般化能力，不是表的覆蓋率。")
     print("「達成率」= 命中數 ÷ min(k, 應命中數)，扣掉了 top-k 造成的上限。")
     print("這個落差就是語意索引能補、而字面檢索補不了的部分。")
 

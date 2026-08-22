@@ -216,18 +216,35 @@ NVIDIA reaches 富喬 (glass fibre) via 聯茂 (copper-clad laminate), and each 
 says which link it came through.
 
 Retrieval is BM25 over character bigrams, so it runs locally with no model, no
-API key and no network. That has a measured limit: it matches characters, not
-meaning.
+API key and no network. It matches characters, not meaning, so queries are first
+widened by `scripts/synonyms.py` using three sources the database already has —
+the wikilink alias map, 「中文 (English)」 pairs mined from the reports, and the
+theme definitions — plus one hand-maintained table for Chinese wordings that
+share no characters.
 
 ```bash
-python scripts/eval_screen.py        # recall and precision against the wikilinks
+python scripts/synonyms.py "先進封裝"   # see what a query expands to
+python scripts/eval_screen.py          # recall and precision against the wikilinks
+python scripts/eval_screen.py --no-expand   # the same without expansion
 ```
 
-Scored against the database's own tags, queries whose wording matches the tag
-attain **100%** of the reachable companies at top-20 (82% precision). Queries
-that mean the same thing in different words — 水冷 for 液冷散熱, 高頻寬記憶體
-for HBM — attain only **34%** (27% precision). That 66-point gap is what a
-semantic index would close, and nothing else here will.
+Measured at top-20 against the database's own tags:
+
+| Query wording | Attainment | Precision |
+|---|---|---|
+| Matches the tag (`CoWoS`) | 100% | 78% |
+| Reworded, named in the synonym table (`封裝基板` → ABF 載板) | 96% | — |
+| Reworded, **not** in the table (`記憶體模組` → HBM) | **3%** | — |
+
+Attainment divides by `min(k, expected)`, so a tag with more companies than `k`
+is not scored as a retrieval failure.
+
+Read that last row before extending the table. Expansion is bounded by what
+someone thought to write down: it works for wording the table names and does
+essentially nothing otherwise, which is a different thing from a semantic index
+that generalises. `eval_screen.py` marks each query with ＊ when the table covers
+it and averages the two groups separately, so adding an entry cannot quietly
+turn a coverage gain into an apparent generalisation gain.
 
 ### Generate Thematic Investment Screens
 
@@ -262,6 +279,7 @@ These run 100% locally with Python + yfinance. No AI, no API cost.
 | Build Obsidian Vault | `python scripts/build_obsidian_vault.py` | Rebuild entities/ so every `[[link]]` resolves |
 | Screen | `python scripts/screen.py "<topic>" [filters]` | Topic → supply chain → financial filters |
 | Evaluate Screening | `python scripts/eval_screen.py` | Recall/precision of the retrieval |
+| Inspect Synonyms | `python scripts/synonyms.py "<term>"` | Show how a query is widened |
 | Normalize Wikilinks | `python scripts/normalize_reports.py [scope]` | Merge spelling variants, repair malformed links |
 
 ### Consumes Tokens — Claude Code Skills (Requires AI)
@@ -328,6 +346,7 @@ The database contains **6,095 unique wikilinks** across three categories:
 │   ├── normalize_reports.py   # Repair/merge wikilink surface forms
 │   ├── build_themes.py        # Generate thematic investment screens
 │   ├── relations.py           # Parse typed, directed supply-chain edges
+│   ├── synonyms.py            # Query expansion (mined + hand-maintained)
 │   ├── screen.py              # Topic + supply chain + financial screening
 │   ├── eval_screen.py         # Retrieval recall/precision harness
 │   ├── build_network.py       # Generate the directed supply-chain graph
