@@ -78,16 +78,16 @@
 
 **Gate：** 通過。schema、JSON／CSV fixture 與 deterministic 測試完成，且未覆寫現有報告財務表格；契約詳見 `docs/PHASE3_DATA_CONTRACT.md`。
 
-### Phase 4 — Perch 相容性測試（MVP accepted；Perch runtime pending）
+### Phase 4 — 本機分析介面與未來 Perch 匯出邊界
 
-- [x] 將 normalized CSV／JSON 複製到隔離測試目錄。
-- [ ] 驗證 Perch 是否能讀取、執行 deterministic calculation、保留欄位名稱與單位；本機找不到 Perch runtime，待取得後實測。
-- [ ] 分別測試 Desktop／CLI sandbox 與 Web upload 能力；不要把 Web 版能力推論成 Desktop／CLI 能力。
-- [x] 以固定輸入驗證相同本機 calculation 結果，並記錄輸入檔 hash；Perch 版本／輸出 hash 待 runtime。
+- [x] 本機 JSON／CSV import 與欄位／單位保留。
+- [x] 本機 query、Decimal calculation、來源 URL／input hash provenance。
+- [x] JSON／CSV mismatch、空結果與 deterministic output 測試。
+- [ ] Perch Desktop／CLI／Web 實測；不部署付費 runtime，僅列為未來外部匯出驗證。
 
-**Gate：** Stan 已接受「本機資料契約 harness 通過、Perch runtime pending」政策，可進入 Phase 5；不能宣稱 Desktop／CLI／Web 相容性已通過。即使 Perch 後續測試失敗，本機 parser 與 normalized output 仍可獨立交付。詳見 `docs/PHASE4_PERCH_COMPATIBILITY.md`。
+**Gate：** 通過（本機分析介面 MVP）。Perch 相容性不屬於本 Gate，維持 future external validation；詳見 `docs/PHASE4_PERCH_COMPATIBILITY.md` 與 `docs/PHASE4_REPLAN.md`。
 
-### Phase 5 — pipeline 整合與 Pilot（pilot harness 完成）
+### Phase 5 — 本機 pipeline 整合與 Pilot
 
 - [x] 以現有 pipeline 的 adapter／cache／logging 模式建立獨立 MOPS XBRL adapter。
 - [x] 沿用 rate limit、403、timeout、空檔案、解析錯誤與非 XBRL 回應的分類錯誤。
@@ -95,7 +95,7 @@
 - [x] 驗證 provenance、冪等下載、重跑一致性與失敗不污染既有報告。
 - [ ] 只有在 pilot 通過且取得獨立決策後，才提出更大範圍的季度更新方案。
 
-**Gate：** pilot harness 具備可回滾、可重跑、可審計的骨架；正式 live pilot／更大範圍季度更新仍由獨立決策確認。詳見 `docs/PHASE5_PILOT.md`。
+**Gate：** 進行中。Phase 5 可沿用 transport／cache／錯誤隔離骨架，正式 live pilot 仍需另行確認公司、季度、排程與 runtime DB 路徑；不宣稱全量同步。詳見 `docs/PHASE5_PILOT.md`。
 
 ## 5. 測試矩陣
 

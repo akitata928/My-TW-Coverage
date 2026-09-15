@@ -2,7 +2,9 @@
 
 ## 交付範圍
 
-Phase 5 將 MOPS XBRL transport、cache、parser boundary 與 canonical output 串成可重跑的 pilot 流程。正式 runtime cache 應放在 repo 外，例如：
+Phase 5 將 MOPS XBRL transport、cache、parser boundary、canonical output 與本機分析介面串成可重跑的 pilot 流程。Perch 不再是 MVP 依賴或 Gate。
+
+正式 runtime cache 應放在 repo 外，例如：
 
 ```text
 ~/.openclaw/data/my-tw-coverage/mops_xbrl/
@@ -15,6 +17,7 @@ Phase 5 將 MOPS XBRL transport、cache、parser boundary 與 canonical output �
 - transport 層沿用 Phase 1 的 TLS、有限退避與 `http_403`／`timeout`／`network_error`／空內容／非 XBRL 分類。
 - fetch 失敗與 parser 失敗分開記錄；單一公司失敗不會寫出 partial canonical output，也不會阻擋其他 pilot job。
 - 每個成功 job 保留來源 URL、抓取時間與 raw input SHA-256；結果 manifest 以穩定排序輸出，支援重跑比對。
+- canonical JSON／CSV 交給 `scripts/local_analysis.py` 做 import、query、Decimal calculation 與 provenance；不需要 Perch runtime。
 - pilot 只允許 1–3 家公司、單一季度；不執行全量下載，不修改 `Pilot_Reports/`。
 
 ## 驗證結果
