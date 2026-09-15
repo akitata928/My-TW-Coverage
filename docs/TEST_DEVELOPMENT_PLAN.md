@@ -58,15 +58,16 @@
 
 **Gate：** 通過。探測器見 `scripts/probe_mops_xbrl.py`；成功 metadata 與錯誤頁分類 fixture 見 `tests/fixtures/mops_xbrl/`。A／其他報表 function 的未成功變體已記錄於來源契約，未被誤判為支援。
 
-### Phase 2 — TIFRS／Arelle 解析器
+### Phase 2 — TIFRS／Arelle 解析器（實作完成，Gate 部分 blocked）
 
-- [ ] 固定 `arelle-release` 版本並記錄 parser 版本。
-- [ ] 驗證 `tifrs-*` namespace、qualified name、中文標籤 `zh-TW` 與英文 fallback。
-- [ ] 驗證 entity identifier、period、unit、decimals 與 context 維度。
-- [ ] 對 `decimals` 負值及千元／百萬元等單位做明確正規化，保留原始值與原始單位。
-- [ ] 產生 deterministic normalized facts，不以欄位 local name 單獨去重。
+- [x] 固定 `arelle-release==2.45.1` 並記錄 parser 版本。
+- [x] 驗證 `tifrs-*` namespace、qualified name 與英文 fallback。
+- [ ] 驗證 taxonomy linkbase 提供的中文標籤 `zh-TW`；目前官方 XSD／label linkbase 未能由來源取得，輸出明確標為 unavailable。
+- [x] 驗證 entity identifier、period、unit、decimals 與 context 維度。
+- [x] 對 `decimals` 負值做明確正規化，保留原始值與原始單位。
+- [x] 產生 deterministic normalized facts，不以欄位 local name 單獨去重。
 
-**Gate：** golden fixture 能穩定產出同一份 normalized output；重跑 diff 為零，或每個差異都有明確 parser／來源原因。
+**Gate：** qualified facts／context／unit／decimals 與 deterministic sample 已完成；`zh-TW` label 子項因缺少官方 taxonomy linkbase 暫 blocked，見 `docs/PHASE2_ARELLE.md`，不宣稱整體 Gate 已通過。
 
 ### Phase 3 — 報表資料契約
 

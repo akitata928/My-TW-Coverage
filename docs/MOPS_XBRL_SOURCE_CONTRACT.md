@@ -1,4 +1,4 @@
-# MOPS XBRL 來源契約（Phase 0–1）
+# MOPS XBRL 來源契約（Phase 0–2）
 
 **查證日期：** 2026-09-15
 **查證環境：** Mac mini，台灣網路，`curl`，TLS 憑證驗證開啟
@@ -67,14 +67,22 @@ https://mopsov.twse.com.tw/server-java/FileDownLoad?functionName=t164sb01&step=9
 4. 不能繞過 CAPTCHA、robots、IP 封鎖或其他 MOPS 存取控制。
 5. 原始財報是否保存，需另行確認授權、檔案大小與保存期限；Phase 1 只提交 metadata，不提交原始下載檔。
 
-## 尚未完成、留給 Phase 2 的項目
+## Phase 2 Arelle 解析證據
 
-- Arelle 是否能完整解析已下載的 2330／2026 Q2 iXBRL。
-- TIFRS namespace、context、unit、decimals 與 label 的解析契約。
+- 固定 parser：`arelle-release==2.45.1`，詳見 `requirements-xbrl.txt`。
+- 2330／2026 Q2／C 輸入 SHA-256：`351b4e59781a71504b30cec9d977e060ab4f978d31695e027252ecfe793d1e55`。
+- Arelle 抽取：1,228 facts、1,102 numeric facts、99 contexts、4 units；可取得 `tifrs-*` qualified names、entity `http://www.twse.com.tw`／`2330`、TWD／shares／EPS／pure units 與 dimensions。
+- deterministic normalized sample：`tests/fixtures/mops_xbrl/2330_2026Q2_C_normalized.sample.json`。
+- parser 實作：`scripts/parse_mops_xbrl.py`；原始財報不進 Git。
+- 由於輸入引用的 `tifrs-ci-cr-2026-03-31.xsd` 未能從官方下載契約取得，Arelle 產生 diagnostics，`zh-TW` label 暫標為 unavailable，英文使用 qualified-name local fallback；不宣稱 label 子項已通過。
+
+## 尚未完成、留給後續 Phase 的項目
+
+- 官方 TIFRS XSD／label linkbase 的可重現取得方式與 `zh-TW` label 驗證。
 - 損益表與現金流量表在同一 iXBRL package 內的 presentation／role 映射。
 - 403 是否由雲端出口 IP、MOPS 政策、rate limit 或 request context 造成。
 - 是否存在 CAPTCHA、頻率限制及非交易／未申報季度的回應差異。
 
-## Phase 0–1 Gate 結論
+## Phase 0–2 Gate 結論
 
-**通過。** 已完成可重跑的下載探測、2330／2026 Q2／C metadata、HTTP 200 錯誤頁分類與退避策略；仍未宣稱 A／其他報表 function 或 Arelle parser 已支援。
+**Phase 0–1 通過；Phase 2 實作完成但 Gate 部分 blocked。** qualified facts／context／unit／decimals 與 deterministic output 已驗證；官方 taxonomy linkbase 不可取得，故 `zh-TW` label 子項尚未通過。

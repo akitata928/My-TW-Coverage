@@ -20,3 +20,5 @@
 建議命名：`{ticker}_{year}Q{quarter}_{report_id}_{statement}.json`。
 
 每個 fixture 必須能透過 metadata 回溯到來源 URL 與抓取結果；不可把認證資訊放在 metadata。Phase 1 前，真實下載檔應留在 repo 外的暫存路徑，並在測試後清除或依保存政策處理。
+
+normalized sample 可以提交，但必須移除原始 HTML、Cookie、session state 與不必要的公司內部資料。Phase 2 parser sample 需保留 input SHA-256、parser 版本、qualified name、context、unit、decimals 與 label availability 狀態。

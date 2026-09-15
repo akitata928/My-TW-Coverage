@@ -1,0 +1,2 @@
+# Phase 2 parser environment; Arelle 2.45.x requires Python >= 3.10.
+arelle-release==2.45.1
