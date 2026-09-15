@@ -87,15 +87,15 @@
 
 **Gate：** Stan 已接受「本機資料契約 harness 通過、Perch runtime pending」政策，可進入 Phase 5；不能宣稱 Desktop／CLI／Web 相容性已通過。即使 Perch 後續測試失敗，本機 parser 與 normalized output 仍可獨立交付。詳見 `docs/PHASE4_PERCH_COMPATIBILITY.md`。
 
-### Phase 5 — pipeline 整合與 Pilot
+### Phase 5 — pipeline 整合與 Pilot（pilot harness 完成）
 
-- [ ] 以現有 pipeline 的 adapter／cache／logging 模式建立獨立 MOPS XBRL adapter。
-- [ ] 加入 rate limit、403、timeout、空檔案、解析錯誤與 schema drift 的分類錯誤。
-- [ ] 先以 1–3 家公司、單一季度做 pilot，不碰全量資料。
-- [ ] 驗證 provenance、冪等下載、重跑一致性與失敗不污染既有報告。
-- [ ] 只有在 pilot 通過後，才提出更大範圍的季度更新方案。
+- [x] 以現有 pipeline 的 adapter／cache／logging 模式建立獨立 MOPS XBRL adapter。
+- [x] 沿用 rate limit、403、timeout、空檔案、解析錯誤與非 XBRL 回應的分類錯誤。
+- [x] 以成功與失敗 fixture job 驗證 1–3 家公司、單一季度 pilot 隔離，不碰全量資料。
+- [x] 驗證 provenance、冪等下載、重跑一致性與失敗不污染既有報告。
+- [ ] 只有在 pilot 通過且取得獨立決策後，才提出更大範圍的季度更新方案。
 
-**Gate：** 具備可回滾、可重跑、可審計的 pilot；是否正式啟用由獨立決策確認。
+**Gate：** pilot harness 具備可回滾、可重跑、可審計的骨架；正式 live pilot／更大範圍季度更新仍由獨立決策確認。詳見 `docs/PHASE5_PILOT.md`。
 
 ## 5. 測試矩陣
 
