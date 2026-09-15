@@ -14,6 +14,10 @@
 
 這不是 parser 或 canonical schema 的失敗：本機 harness 證明輸入是結構化、可回溯且 CSV／JSON 等價；但仍欠缺 Perch 實際 runtime 的讀取、計算與版本證據。
 
+## Gate 決策
+
+Stan 已接受 MVP 政策：**本機資料契約 harness 通過、Perch runtime pending**。因此 Phase 4 可進入 Phase 5；此決策不等同於宣稱 Perch Desktop、CLI 或 Web upload 相容性已通過。取得合法 runtime 後，仍須依下列流程分別補做三種介面的實測。
+
 ## 後續 Perch 實測最小流程
 
 1. 取得可合法使用的 Perch Desktop／CLI 或 Web upload runtime。
