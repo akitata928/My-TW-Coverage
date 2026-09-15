@@ -85,4 +85,4 @@ https://mopsov.twse.com.tw/server-java/FileDownLoad?functionName=t164sb01&step=9
 
 ## Phase 0–2 Gate 結論
 
-**Phase 0–1 通過；Phase 2 實作完成但 Gate 部分 blocked。** qualified facts／context／unit／decimals 與 deterministic output 已驗證；官方 taxonomy linkbase 不可取得，故 `zh-TW` label 子項尚未通過。
+**Phase 0–1 通過；Phase 2 部分通過（MVP accepted fallback）。** qualified facts／context／unit／decimals 與 deterministic output 已驗證；官方 taxonomy linkbase 不可取得，`zh-TW` 以 `null` fallback、英文以 qualified-name local fallback，不阻擋 Phase 3 schema，但不宣稱中文標籤已驗證。

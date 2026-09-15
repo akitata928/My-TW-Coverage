@@ -36,6 +36,6 @@
 
 MOPS 回傳的 iXBRL 會引用相對 XSD，例如 `tifrs-ci-cr-2026-03-31.xsd`；目前官方下載端點未提供可重現的 XSD URL，且輸入本身未包含 label linkbase。因此 Arelle 仍能抽取 facts／contexts／units，但 `fact.concept` 可能為空，產生 2,669 個 schema/linkbase diagnostics，中文 label 只能標記 unavailable。
 
-已提交 sanitized sample：`tests/fixtures/mops_xbrl/2330_2026Q2_C_normalized.sample.json`。在沒有 taxonomy linkbase 的前提下，qualified name、context、unit、decimals 與 deterministic normalized facts 已完成；**Phase 2 Gate 的 `zh-TW` label 子項暫為 blocked，不宣稱整體 Gate 已通過**。
+已提交 sanitized sample：`tests/fixtures/mops_xbrl/2330_2026Q2_C_normalized.sample.json`。在沒有 taxonomy linkbase 的前提下，qualified name、context、unit、decimals 與 deterministic normalized facts 已完成；依 MVP 決策，`zh-TW` 使用 `null`、英文使用 qualified-name local fallback。**Phase 2 Gate 為部分通過（accepted fallback），不宣稱中文標籤已驗證，但可進入 Phase 3 schema。**
 
 下一個可執行步驟是取得同一版本的官方 TIFRS XSD／label linkbase，再以相同輸入重跑並比較 normalized output；不會把猜測的 taxonomy 或自行編造標籤提交進 repo。
