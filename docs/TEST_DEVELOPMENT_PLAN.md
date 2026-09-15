@@ -69,14 +69,14 @@
 
 **Gate：** 部分通過（MVP accepted）。qualified facts／context／unit／decimals 與 deterministic sample 已完成；`zh-TW` label 依決策採 `null` fallback，不宣稱中文標籤已驗證，但不阻擋 Phase 3 schema。
 
-### Phase 3 — 報表資料契約
+### Phase 3 — 報表資料契約（完成）
 
-- [ ] 定義 balance sheet、income statement、cash flow statement 的 canonical schema。
-- [ ] 每筆 fact 至少保留：`ticker`、`company_name`、`report_period`、`statement_type`、`concept_qname`、`label_zh_tw`、`value`、`unit`、`decimals`、`context_ref`、`source_url`、`retrieved_at`。
-- [ ] 定義缺值、重述、比較期、累計／單季、合併／個別報表的處理方式。
-- [ ] 輸出 CSV 與 JSON；Markdown 只作為人工檢查呈現，不作為唯一機器介面。
+- [x] 定義 balance sheet、income statement、cash flow statement 的 canonical schema。
+- [x] 每筆 fact 至少保留：`ticker`、`company_name`、`report_period`、`statement_type`、`concept_qname`、`label_zh_tw`、`value`、`unit`、`decimals`、`context_ref`、`source_url`、`retrieved_at`。
+- [x] 定義缺值、重述、比較期、累計／單季、合併／個別報表的處理方式。
+- [x] 輸出 CSV 與 JSON；Markdown 只作為人工檢查呈現，不作為唯一機器介面。
 
-**Gate：** schema 有 fixture 驗證，且不會覆寫現有報告財務表格。
+**Gate：** 通過。schema、JSON／CSV fixture 與 deterministic 測試完成，且未覆寫現有報告財務表格；契約詳見 `docs/PHASE3_DATA_CONTRACT.md`。
 
 ### Phase 4 — Perch 相容性測試
 

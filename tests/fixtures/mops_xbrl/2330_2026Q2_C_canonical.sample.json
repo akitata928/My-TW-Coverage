@@ -1,0 +1,31 @@
+[
+  {
+    "accumulation": "instant",
+    "company_name": "台積電",
+    "concept_qname": "{http://www.xbrl.org/tifrs/bsci/ci/2026-03-31}AccountsReceivableDuefromRelatedPartiesNet",
+    "consolidation_scope": "consolidated",
+    "context_ref": "AsOf20260630",
+    "decimals": "-3",
+    "dimensions": [],
+    "entity_identifier": "2330",
+    "entity_scheme": "http://www.twse.com.tw",
+    "label_en": "AccountsReceivableDuefromRelatedPartiesNet",
+    "label_zh_tw": null,
+    "missing_value_reason": null,
+    "period_end": "2026-07-01T00:00:00",
+    "period_instant": "2026-07-01T00:00:00",
+    "period_role": "current",
+    "period_start": null,
+    "raw_unit": "{http://www.xbrl.org/2003/iso4217}TWD",
+    "raw_value": "5160539000",
+    "report_period": "2026Q2",
+    "restatement_status": "as_filed",
+    "source_input_sha256": "351b4e59781a71504b30cec9d977e060ab4f978d31695e027252ecfe793d1e55",
+    "source_url": "https://mopsov.twse.com.tw/server-java/FileDownLoad?functionName=t164sb01&step=9&co_id=2330&year=2026&season=2&report_id=C",
+    "statement_type": "balance_sheet",
+    "ticker": "2330",
+    "unit": "{http://www.xbrl.org/2003/iso4217}TWD",
+    "value": "5160539000000",
+    "value_status": "present"
+  }
+]
