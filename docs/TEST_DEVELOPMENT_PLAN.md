@@ -48,15 +48,15 @@
 
 **Gate：** 通過。來源契約、Mac mini 實測證據、403 原因分類與 Phase 1 驗證步驟見 `docs/MOPS_XBRL_SOURCE_CONTRACT.md`；基線見 `docs/PHASE0_BASELINE.md`。
 
-### Phase 1 — 下載器可行性與 golden fixture
+### Phase 1 — 下載器可行性與 golden fixture（完成）
 
-- [ ] 在台灣境內本機測試 MOPS XBRL 下載 URL。
-- [ ] 測試 2330／2026 Q2／合併報表（`report_id=C`）。
-- [ ] 若下載成功，保存去除敏感資訊、可重跑的 fixture metadata；原始財報是否入庫需另行確認授權與檔案大小。
-- [ ] 測試 session cookie、User-Agent、Referer 與退避重試；不得使用 `verify=False` 或繞過存取限制。
-- [ ] 明確區分「索引成功」「下載成功」「檔案可解析」三種狀態。
+- [x] 在台灣境內本機測試 MOPS XBRL 下載 URL。
+- [x] 測試 2330／2026 Q2／合併報表（`report_id=C`）。
+- [x] 若下載成功，保存去除敏感資訊、可重跑的 fixture metadata；原始財報是否入庫需另行確認授權與檔案大小。
+- [x] 測試 session cookie、User-Agent、Referer 與退避重試；不得使用 `verify=False` 或繞過存取限制。
+- [x] 明確區分「索引成功」「下載成功」「檔案可解析」三種狀態。
 
-**Gate：** 同一 URL 可在明確限制下重跑；成功或失敗都有可驗證的 HTTP／錯誤紀錄。
+**Gate：** 通過。探測器見 `scripts/probe_mops_xbrl.py`；成功 metadata 與錯誤頁分類 fixture 見 `tests/fixtures/mops_xbrl/`。A／其他報表 function 的未成功變體已記錄於來源契約，未被誤判為支援。
 
 ### Phase 2 — TIFRS／Arelle 解析器
 
