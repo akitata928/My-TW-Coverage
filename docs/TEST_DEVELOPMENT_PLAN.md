@@ -39,14 +39,14 @@
 
 ## 4. 分階段 Jobs 與 Gate
 
-### Phase 0 — 基線與來源契約
+### Phase 0 — 基線與來源契約（完成）
 
-- [ ] 確認 repo baseline、Python 版本、依賴安裝方式與測試指令。
-- [ ] 釐清報告數量（1,733／1,735／1,737）與既有 verification phase，不在此階段修改數據。
-- [ ] 記錄 MOPS 官方 URL pattern、必要參數、HTTP method、header、referer、cookie 與錯誤行為。
-- [ ] 建立 `tests/fixtures/mops_xbrl/` 隔離目錄規範，禁止把憑證或 session state 放入 Git。
+- [x] 確認 repo baseline、Python 版本、依賴安裝方式與測試指令。
+- [x] 釐清報告數量（1,733／1,735／1,737）與既有 verification phase，不在此階段修改數據。
+- [x] 記錄 MOPS 官方 URL pattern、必要參數、HTTP method、header、referer、cookie 與錯誤行為。
+- [x] 建立 `tests/fixtures/mops_xbrl/` 隔離目錄規範，禁止把憑證或 session state 放入 Git。
 
-**Gate：** 有一份可審查的來源契約；403 的可能原因與下一個可執行驗證步驟已列明。
+**Gate：** 通過。來源契約、Mac mini 實測證據、403 原因分類與 Phase 1 驗證步驟見 `docs/MOPS_XBRL_SOURCE_CONTRACT.md`；基線見 `docs/PHASE0_BASELINE.md`。
 
 ### Phase 1 — 下載器可行性與 golden fixture
 
