@@ -78,14 +78,14 @@
 
 **Gate：** 通過。schema、JSON／CSV fixture 與 deterministic 測試完成，且未覆寫現有報告財務表格；契約詳見 `docs/PHASE3_DATA_CONTRACT.md`。
 
-### Phase 4 — Perch 相容性測試
+### Phase 4 — Perch 相容性測試（本機 harness 完成；Perch runtime blocked）
 
-- [ ] 將 normalized CSV／JSON 複製到隔離測試目錄。
-- [ ] 驗證 Perch 是否能讀取、執行 deterministic calculation、保留欄位名稱與單位。
+- [x] 將 normalized CSV／JSON 複製到隔離測試目錄。
+- [ ] 驗證 Perch 是否能讀取、執行 deterministic calculation、保留欄位名稱與單位；本機找不到 Perch runtime，待取得後實測。
 - [ ] 分別測試 Desktop／CLI sandbox 與 Web upload 能力；不要把 Web 版能力推論成 Desktop／CLI 能力。
-- [ ] 以固定輸入驗證相同計算結果，並記錄 Perch 版本、輸入檔 hash 與輸出 hash。
+- [x] 以固定輸入驗證相同本機 calculation 結果，並記錄輸入檔 hash；Perch 版本／輸出 hash 待 runtime。
 
-**Gate：** Perch 只被視為結構化資料的使用者；若 Perch 測試失敗，仍可獨立交付本機 parser 與 normalized output。
+**Gate：** 本機資料契約 harness 通過；Perch runtime 子項 blocked，不能宣稱 Desktop／CLI／Web 相容性已通過。即使 Perch 後續測試失敗，本機 parser 與 normalized output 仍可獨立交付。詳見 `docs/PHASE4_PERCH_COMPATIBILITY.md`。
 
 ### Phase 5 — pipeline 整合與 Pilot
 
