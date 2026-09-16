@@ -38,6 +38,7 @@ MVP 不把 Perch 當成必要依賴，改以 SQLite 保存可追溯的 XBRL 原�
 
 - `statement_facts`：由 raw facts 投影出的分析事實，包含 statement_type、industry_family、report_scope、period_role、accumulation、concept_mapping_id、mapping_status。
 - `concept_mappings`：`source_qname → canonical_concept`，包含適用產業、taxonomy_version、mapping_version、effective_from／to、confidence、mapping_status 與人工註記。
+- 金融業 live pilot 使用 `config/mops_financial_mapping.json` 的版本化 registry；目前只接受 exact QName local-name 的保守 provisional anchors。未列入 registry 的 concept 維持 `unknown` 並產生 quality warning，不以中文名稱、子字串或數值猜測語意。
 - `statement_templates`：各產業報表可呈現的概念集合、必要／選用規則、單位與期間條件。
 - `data_quality_issues`：unknown concept、缺值、單位衝突、期間衝突、重述、重複 fact、映射未驗證等問題。
 

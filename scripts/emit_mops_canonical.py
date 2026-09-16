@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Any
 
 
-STATEMENT_TYPES = ("balance_sheet", "income_statement", "cash_flow_statement")
+STATEMENT_TYPES = ("balance_sheet", "income_statement", "cash_flow_statement", "unknown")
 SCOPE_TYPES = ("consolidated", "individual")
 PERIOD_ROLES = ("current", "comparative", "unknown")
 RESTATEMENT_STATUSES = ("as_filed", "restated", "unknown")

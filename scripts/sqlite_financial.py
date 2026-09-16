@@ -16,6 +16,7 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 MIGRATION = ROOT / "migrations/001_financial_schema.sql"
 INDUSTRIES = {"general_industrial", "financial_holding", "bank", "insurance", "securities", "unknown"}
+MAPPING_STATUSES = {"verified", "provisional", "unknown"}
 
 
 def utc_now() -> str:
@@ -86,7 +87,9 @@ def validate_json_csv(json_path: Path, csv_path: Path) -> list[dict[str, Any]]:
 
 
 def _namespace(qname: str) -> tuple[str, str]:
-    if "#" in qname:
+    if qname.startswith("{") and "}" in qname:
+        namespace, local = qname[1:].split("}", 1)
+    elif "#" in qname:
         namespace, local = qname.rsplit("#", 1)
     elif ":" in qname:
         namespace, local = qname.rsplit(":", 1)
@@ -97,6 +100,36 @@ def _namespace(qname: str) -> tuple[str, str]:
 
 def _json(value: Any) -> str:
     return json.dumps(value if value is not None else [], ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+
+
+def load_mapping_registry(path: Path | None) -> dict[tuple[str, str], dict[str, str]]:
+    if path is None:
+        return {}
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    default_status = str(payload.get("default_status", "unknown"))
+    if default_status not in MAPPING_STATUSES:
+        raise ValueError("mapping registry default_status must be verified, provisional, or unknown")
+    result: dict[tuple[str, str], dict[str, str]] = {}
+    for item in payload.get("mappings", []):
+        industry = str(item["industry_family"])
+        local_name = str(item["local_name"])
+        status = str(item.get("status", default_status))
+        if industry not in INDUSTRIES or status not in MAPPING_STATUSES:
+            raise ValueError(f"invalid mapping registry entry: {item}")
+        key = (industry, local_name)
+        if key in result:
+            raise ValueError(f"duplicate mapping registry key: {key}")
+        result[key] = {
+            "canonical_concept": str(item["canonical_concept"]),
+            "mapping_status": status,
+            "notes": str(item.get("notes", "")),
+        }
+    result[("__default__", "__default__")] = {
+        "canonical_concept": "unknown",
+        "mapping_status": default_status,
+        "notes": str(payload.get("notes", "")),
+    }
+    return result
 
 
 def _get_or_insert(db: sqlite3.Connection, sql: str, params: tuple[Any, ...], select_sql: str, select_params: tuple[Any, ...]) -> int:
@@ -115,6 +148,7 @@ def import_canonical(
     institution_type: str | None = None,
     parent_ticker: str | None = None,
     mapping_version: str = "mvp-2026-09",
+    mapping_registry: Path | None = None,
 ) -> int:
     if industry_family not in INDUSTRIES:
         raise ValueError(f"industry_family must be one of: {', '.join(sorted(INDUSTRIES))}")
@@ -128,6 +162,8 @@ def import_canonical(
     scope = str(rows[0].get("consolidation_scope") or "unknown")
     retrieved_at = str(rows[0].get("retrieved_at") or utc_now())
     statement_types = {str(row.get("statement_type") or "unknown") for row in rows}
+    registry = load_mapping_registry(mapping_registry)
+    registry_default = registry[("__default__", "__default__")]
 
     migrate(db_path)
     inserted = 0
@@ -206,12 +242,17 @@ def import_canonical(
             fact_id = db.execute(
                 "SELECT fact_id FROM xbrl_facts WHERE raw_document_id=? AND fact_sha256=?", (raw_id, fact_key)
             ).fetchone()[0]
-            canonical = str(row.get("label_en") or local_name)
+            mapping = registry.get((industry_family, local_name), registry_default)
+            canonical = mapping["canonical_concept"] if mapping["mapping_status"] != "unknown" else str(row.get("label_en") or local_name)
+            mapping_status = mapping["mapping_status"]
+            mapping_notes = mapping["notes"] or "concept mapping requires industry review"
             db.execute(
                 """INSERT OR IGNORE INTO concept_mappings
                    (source_qname, canonical_concept, industry_family, taxonomy_version, mapping_version,
-                    confidence, mapping_status, notes) VALUES (?, ?, ?, ?, ?, 'unknown', 'unknown', ?)""",
-                (qname, canonical, industry_family, taxonomy_version, mapping_version, "fixture mapping pending verification"),
+                    confidence, mapping_status, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+                (qname, canonical, industry_family, taxonomy_version, mapping_version,
+                 {"verified": "high", "provisional": "medium", "unknown": "unknown"}[mapping_status],
+                 mapping_status, mapping_notes),
             )
             mapping_id = db.execute(
                 """SELECT concept_mapping_id FROM concept_mappings
@@ -225,7 +266,7 @@ def import_canonical(
                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                 (fact_id, ticker, str(row.get("statement_type") or "unknown"), industry_family, institution_type,
                  scope, str(row.get("period_role") or "unknown"), str(row.get("accumulation") or "unknown"),
-                 str(row.get("restatement_status") or "unknown"), mapping_id, canonical, "unknown"),
+                 str(row.get("restatement_status") or "unknown"), mapping_id, canonical, mapping_status),
             )
             sf_id = db.execute("SELECT statement_fact_id FROM statement_facts WHERE fact_id=?", (fact_id,)).fetchone()[0]
             if str(row.get("value_status") or "missing") == "missing":
@@ -235,12 +276,20 @@ def import_canonical(
                        VALUES (?, ?, 'missing_value', 'warning', ?, ?)""",
                     (fact_id, sf_id, str(row.get("missing_value_reason") or "source_value_unavailable"), utc_now()),
                 )
-            db.execute(
-                """INSERT OR IGNORE INTO data_quality_issues
-                   (fact_id, statement_fact_id, issue_type, severity, message, detected_at)
-                   VALUES (?, ?, 'mapping_pending', 'warning', 'concept mapping requires industry review', ?)""",
-                (fact_id, sf_id, utc_now()),
-            )
+            if mapping_status == "unknown":
+                db.execute(
+                    """INSERT OR IGNORE INTO data_quality_issues
+                       (fact_id, statement_fact_id, issue_type, severity, message, detected_at)
+                       VALUES (?, ?, 'mapping_pending', 'warning', ?, ?)""",
+                    (fact_id, sf_id, mapping_notes, utc_now()),
+                )
+            elif mapping_status == "provisional":
+                db.execute(
+                    """INSERT OR IGNORE INTO data_quality_issues
+                       (fact_id, statement_fact_id, issue_type, severity, message, detected_at)
+                       VALUES (?, ?, 'mapping_provisional', 'warning', ?, ?)""",
+                    (fact_id, sf_id, mapping_notes, utc_now()),
+                )
             inserted += 1
         db.commit()
     return inserted
@@ -354,6 +403,7 @@ def main() -> int:
     import_parser.add_argument("--institution-type")
     import_parser.add_argument("--parent-ticker")
     import_parser.add_argument("--mapping-version", default="mvp-2026-09")
+    import_parser.add_argument("--mapping-registry", type=Path)
     report_parser = sub.add_parser("integrity")
     report_parser.add_argument("db", type=Path)
     query_parser = sub.add_parser("query")
@@ -375,7 +425,7 @@ def main() -> int:
         migrate(args.db)
         return 0
     if args.command == "import-canonical":
-        print(json.dumps({"inserted": import_canonical(args.db, args.json_input, csv_path=args.csv_input, industry_family=args.industry_family, institution_type=args.institution_type, parent_ticker=args.parent_ticker, mapping_version=args.mapping_version)}, ensure_ascii=False))
+        print(json.dumps({"inserted": import_canonical(args.db, args.json_input, csv_path=args.csv_input, industry_family=args.industry_family, institution_type=args.institution_type, parent_ticker=args.parent_ticker, mapping_version=args.mapping_version, mapping_registry=args.mapping_registry)}, ensure_ascii=False))
         return 0
     if args.command == "integrity":
         print(json.dumps(integrity_report(args.db), ensure_ascii=False, indent=2))

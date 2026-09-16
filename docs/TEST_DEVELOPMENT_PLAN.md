@@ -106,10 +106,12 @@
 - [x] 沿用 rate limit、403、timeout、空檔案、解析錯誤與非 XBRL 回應的分類錯誤。
 - [x] 以成功與失敗 fixture job 驗證 1–3 家公司、單一季度 pilot 隔離，不碰全量資料。
 - [x] 驗證 provenance、冪等下載、重跑一致性與失敗不污染既有報告。
-- [ ] 以 2330＋一家金控＋一家銀行進行單季合併報表 live pilot；保險／證券列為第二輪。
+- [x] 以 2330＋2882 國泰金＋2801 彰銀進行 2026 Q2／report_id=C／`t164sb01` 單季合併 instance live pilot；保險／證券列為第二輪。
+- [x] 建立版本化 exact-QName financial mapping registry；未列入 registry 的 concept 保留 `unknown` 並產生 quality warning。
+- [x] 以 repo 外 Arelle 2.45.1 解析三家公司，產出 canonical JSON／CSV 並匯入同一 SQLite。
 - [ ] 只有在 pilot 通過且取得獨立決策後，才提出更大範圍的季度更新方案。
 
-**Gate：** 進行中。Phase 5 可沿用 transport／cache／錯誤隔離骨架，正式 live pilot 仍需另行確認公司、季度、排程與 runtime DB 路徑；不宣稱全量同步。詳見 `docs/PHASE5_PILOT.md`。
+**Gate：** bounded live pilot 通過；三家公司來源、解析、canonical／SQLite integrity 與 mapping coverage 均有證據。仍不宣稱完整三大報表 semantic mapping：statement boundary、中文 taxonomy label 與未列入 registry 的 concept 維持 unknown／warning。詳見 `docs/PHASE5_PILOT.md`。
 
 ## 5. 測試矩陣
 

@@ -29,8 +29,11 @@ SQLite semantic layer 依 `docs/SQLITE_FINANCIAL_SCHEMA.md` 採原始長表、�
 - 離線 pilot harness 已以成功與 HTTP 403 fixture job 驗證成功／失敗隔離。
 - 相同成功 job 重跑會產生 `cache_hit` event，probe 不會再次呼叫。
 - 多產業 SQLite migration、離線 fixture、本機 query、quality report、JSON／CSV mismatch rejection 與 Decimal/provenance 已完成；金融業正式 MOPS mapping 與上述 live pilot 仍是下一個獨立 Gate。
+- 2026 Q2／report_id=C／`t164sb01` live pilot 已完成：2330、2882、2801 均 HTTP 200、Arelle 2.45.1 解析成功，分別產出 1,102、957、1,711 numeric facts；三家公司均匯入同一個 repo 外 SQLite，`integrity_check=ok`、foreign key check 為空。
+- Pilot mapping registry `mops-tifrs-2026-09-pilot-1` 僅提供 exact-name provisional anchors；覆蓋率為 2330：75 provisional／1,027 unknown、2882：102／855、2801：66／1,645。所有 unknown 保留原始 QName 並產生 warning。
+- Arelle diagnostics 仍為 2,669／3,489／2,542，因官方 taxonomy／label linkbase 未納入 runtime；`label_zh_tw` 維持 unavailable，未宣稱中文標籤或完整 semantic mapping 已驗證。
 - 完整測試與既有資料 audit 由 PR comment 記錄；目前未提交任何 raw MOPS 財報。
 
 ## 尚未宣稱
 
-這個 Phase 5 交付是可測試的 pipeline／pilot 骨架，不是正式全量同步，也不代表所有 MOPS 報表 function 或所有公司的來源可用。正式啟用前仍須由獨立決策確認 SQLite migration、mapping fixture、公司範圍、季度、排程與 runtime DB 路徑。保險與證券需另行驗證 IFRS 17 及各自業務科目後才納入。
+這個 Phase 5 交付是可測試的 pipeline／pilot 骨架，不是正式全量同步，也不代表所有 MOPS 報表 function 或所有公司的來源可用。正式啟用前仍須由獨立決策確認 SQLite migration、mapping fixture、公司範圍、季度、排程與 runtime DB 路徑。保險與證券需另行驗證 IFRS 17 及各自業務科目後才納入。此輪 canonical live output 的 `statement_type`、`period_role`、`accumulation`、`restatement_status` 以 `unknown` 保存，因 `t164sb01` instance 同時包含多種報表與附註 facts；取得可驗證 statement boundary 前，不宣稱三大報表 semantic Gate 通過。

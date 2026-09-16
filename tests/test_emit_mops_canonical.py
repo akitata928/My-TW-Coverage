@@ -50,6 +50,12 @@ class CanonicalSchemaTests(unittest.TestCase):
         facts = MODULE.canonicalize(self.payload, **kwargs)
         self.assertTrue(all(fact.period_role == "unknown" for fact in facts))
 
+    def test_unclassified_live_instance_allows_unknown_statement(self):
+        kwargs = self.kwargs()
+        kwargs["statement_type"] = "unknown"
+        facts = MODULE.canonicalize(self.payload, **kwargs)
+        self.assertTrue(all(fact.statement_type == "unknown" for fact in facts))
+
     def test_invalid_statement_type_rejected(self):
         kwargs = self.kwargs()
         kwargs["statement_type"] = "other"

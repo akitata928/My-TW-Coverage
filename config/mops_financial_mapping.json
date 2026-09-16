@@ -1,0 +1,27 @@
+{
+  "registry_version": "mops-tifrs-2026-09-pilot-1",
+  "taxonomy_policy": "exact_qname_local_name_only",
+  "taxonomy_namespace_prefix": "http://www.xbrl.org/tifrs/",
+  "effective_from": "2026-01-01",
+  "default_status": "unknown",
+  "notes": "Pilot registry only. Provisional mappings are conservative exact-name anchors and require official taxonomy/linkbase review before production use. Unknown concepts are retained and never inferred.",
+  "mappings": [
+    {"industry_family": "general_industrial", "local_name": "Assets", "canonical_concept": "assets", "status": "provisional", "notes": "Exact QName local-name anchor; semantic review pending."},
+    {"industry_family": "general_industrial", "local_name": "Liabilities", "canonical_concept": "liabilities", "status": "provisional", "notes": "Exact QName local-name anchor; semantic review pending."},
+    {"industry_family": "general_industrial", "local_name": "Equity", "canonical_concept": "equity", "status": "provisional", "notes": "Exact QName local-name anchor; semantic review pending."},
+    {"industry_family": "general_industrial", "local_name": "Revenue", "canonical_concept": "revenue", "status": "provisional", "notes": "Exact QName local-name anchor; semantic review pending."},
+    {"industry_family": "general_industrial", "local_name": "GrossProfit", "canonical_concept": "gross_profit", "status": "provisional", "notes": "Exact QName local-name anchor; semantic review pending."},
+    {"industry_family": "financial_holding", "local_name": "Assets", "canonical_concept": "assets", "status": "provisional", "notes": "Exact QName local-name anchor; semantic review pending."},
+    {"industry_family": "financial_holding", "local_name": "Liabilities", "canonical_concept": "liabilities", "status": "provisional", "notes": "Exact QName local-name anchor; semantic review pending."},
+    {"industry_family": "financial_holding", "local_name": "Equity", "canonical_concept": "equity", "status": "provisional", "notes": "Exact QName local-name anchor; semantic review pending."},
+    {"industry_family": "financial_holding", "local_name": "FinancialAssetsAtAmortisedCost", "canonical_concept": "financial_assets_at_amortised_cost", "status": "provisional", "notes": "Exact QName local-name anchor; semantic review pending."},
+    {"industry_family": "financial_holding", "local_name": "FinancialAssetsAtFairValueThroughOtherComprehensiveIncome", "canonical_concept": "financial_assets_at_fvoci", "status": "provisional", "notes": "Exact QName local-name anchor; semantic review pending."},
+    {"industry_family": "bank", "local_name": "Assets", "canonical_concept": "assets", "status": "provisional", "notes": "Exact QName local-name anchor; semantic review pending."},
+    {"industry_family": "bank", "local_name": "Liabilities", "canonical_concept": "liabilities", "status": "provisional", "notes": "Exact QName local-name anchor; semantic review pending."},
+    {"industry_family": "bank", "local_name": "Equity", "canonical_concept": "equity", "status": "provisional", "notes": "Exact QName local-name anchor; semantic review pending."},
+    {"industry_family": "bank", "local_name": "LoansAndAdvancesToCustomers", "canonical_concept": "loans_and_advances_to_customers", "status": "provisional", "notes": "Exact QName local-name anchor; semantic review pending."},
+    {"industry_family": "bank", "local_name": "DepositsFromCustomers", "canonical_concept": "deposits_from_customers", "status": "provisional", "notes": "Exact QName local-name anchor; semantic review pending."},
+    {"industry_family": "bank", "local_name": "InterestIncome", "canonical_concept": "interest_income", "status": "provisional", "notes": "Exact QName local-name anchor; semantic review pending."},
+    {"industry_family": "bank", "local_name": "InterestExpense", "canonical_concept": "interest_expense", "status": "provisional", "notes": "Exact QName local-name anchor; semantic review pending."}
+  ]
+}

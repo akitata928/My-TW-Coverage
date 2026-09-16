@@ -7,7 +7,7 @@
 | 欄位群 | 欄位 | 契約 |
 |---|---|---|
 | Identity | `ticker`, `company_name`, `report_period` | 來源公司與申報期間；不從 local name 猜公司名稱 |
-| Statement | `statement_type`, `consolidation_scope` | `balance_sheet`／`income_statement`／`cash_flow_statement`；`consolidated`／`individual` |
+| Statement | `statement_type`, `consolidation_scope` | `balance_sheet`／`income_statement`／`cash_flow_statement`／`unknown`；`consolidated`／`individual`。`unknown` 僅表示 live instance 尚未取得可驗證的 statement boundary。 |
 | Period semantics | `period_role`, `accumulation`, `period_start`, `period_end`, `period_instant` | `current`／`comparative`／`unknown`；`instant`／`single_period`／`year_to_date`／`unknown`；原始 context 日期保留 |
 | Concept | `concept_qname`, `label_zh_tw`, `label_en` | qualified name 必須包含 namespace；中文缺失時為 `null`，英文可為 local fallback |
 | Value | `value`, `raw_value`, `unit`, `raw_unit`, `decimals`, `value_status`, `missing_value_reason` | 不把缺值補成 0；缺值使用 `missing` 與原因，原始／正規化值並存 |
