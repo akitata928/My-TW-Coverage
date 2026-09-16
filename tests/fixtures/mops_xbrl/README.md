@@ -22,3 +22,5 @@
 每個 fixture 必須能透過 metadata 回溯到來源 URL 與抓取結果；不可把認證資訊放在 metadata。Phase 1 前，真實下載檔應留在 repo 外的暫存路徑，並在測試後清除或依保存政策處理。
 
 normalized sample 可以提交，但必須移除原始 HTML、Cookie、session state 與不必要的公司內部資料。Phase 2 parser sample 需保留 input SHA-256、parser 版本、qualified name、context、unit、decimals 與 label availability 狀態。
+
+Phase 3A 的 `phase3a_multi_industry.sample.json` 是人工去敏 fixture，僅用來驗證一般產業、金控與銀行在 SQLite 長表／產業 view 中可共存；不代表正式 MOPS mapping 或 live pilot 已完成。

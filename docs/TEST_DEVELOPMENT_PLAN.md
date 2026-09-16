@@ -83,17 +83,17 @@
 - [x] 確認一般產業、金控、銀行、保險、證券不可共用單一寬表。
 - [x] 定義 raw／provenance layer、semantic layer、版本化 concept mapping 與產業 views。
 - [x] 定義 qualified QName、合併／個別、期間角色、累計／單季、重述與 unknown／NULL 規則。
-- [ ] 建立 SQLite migration、外鍵與 sanitized schema fixture。
-- [ ] 以一般產業＋金控＋銀行 pilot fixture 驗證跨產業共存與 query。
+- [x] 建立 SQLite migration、外鍵與 sanitized schema fixture。
+- [x] 以一般產業＋金控＋銀行 pilot fixture 驗證跨產業共存與 query。
 
-**Gate：** 設計完成；SQLite migration、金融業 fixture 與 live mapping 尚未完成。設計詳見 `docs/SQLITE_FINANCIAL_SCHEMA.md`。
+**Gate：** 通過（離線 schema／migration MVP）。金融業正式 MOPS mapping 與 live pilot 仍待驗證；設計與 migration 詳見 `docs/SQLITE_FINANCIAL_SCHEMA.md`。
 
 ### Phase 4 — 本機分析介面與未來 Perch 匯出邊界
 
 - [x] 本機 JSON／CSV import 與欄位／單位保留。
 - [x] 本機 query、Decimal calculation、來源 URL／input hash provenance。
 - [x] JSON／CSV mismatch、空結果與 deterministic output 測試。
-- [ ] 將本機分析介面接上 SQLite semantic layer；目前既有 JSON／CSV interface 維持相容。
+- [x] 將本機分析介面接上 SQLite semantic layer；目前既有 JSON／CSV interface 維持相容。
 - [ ] Perch Desktop／CLI／Web 實測；不部署付費 runtime，僅列為未來外部匯出驗證。
 
 **Gate：** JSON／CSV 本機分析介面通過；多產業 SQLite semantic layer 仍待 Phase 3A migration／fixture Gate。Perch 相容性不屬於本 Gate，維持 future external validation。

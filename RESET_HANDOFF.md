@@ -33,7 +33,15 @@
    或 update_enrichment.py；每次變更後依規則做 audit，並視內容變更重建
    WIKILINKS.md、themes 與 network。
 3. 不要在沒有明確資料範圍與品質驗證前，直接對全部 1,733 份報告做 yfinance
-   refresh 或 AI enrichment；那會製造大 diff、成本與難以回溯的變化。
+refresh 或 AI enrichment；那會製造大 diff、成本與難以回溯的變化。
+
+## 2026-09-16 MOPS XBRL Phase 3A checkpoint
+
+- Draft PR #2 分支：`plan/mops-xbrl-test-development`。
+- Phase 3A SQLite migration、raw／semantic layer、產業 views、Python query 與去敏 multi-industry fixture 已完成；詳見 `docs/SQLITE_FINANCIAL_SCHEMA.md`。
+- 離線驗證涵蓋 2330 一般產業、2882 金控、2801 銀行；SQLite `integrity_check=ok`、foreign key check 空、migration 可重跑且資料冪等。
+- 尚未完成：正式金融業 MOPS concept mapping、保險／證券 fixture、2330＋金控＋銀行 live pilot。未下載全量資料，未修改 `Pilot_Reports/`。
+- 本機環境沒有 pytest 模組；已以 `compileall`、`git diff --check` 與獨立 SQLite smoke test 驗證。安裝測試套件前需另行確認。
 
 ## 新 session 入口
 

@@ -28,7 +28,7 @@ SQLite semantic layer 依 `docs/SQLITE_FINANCIAL_SCHEMA.md` 採原始長表、�
 
 - 離線 pilot harness 已以成功與 HTTP 403 fixture job 驗證成功／失敗隔離。
 - 相同成功 job 重跑會產生 `cache_hit` event，probe 不會再次呼叫。
-- 目前尚未宣稱多產業 SQLite migration、金融業 mapping 或上述 live pilot 已完成；這些是下一個獨立 Gate。
+- 多產業 SQLite migration、離線 fixture 與本機 query 已完成；金融業正式 MOPS mapping 與上述 live pilot 仍是下一個獨立 Gate。
 - 完整測試與既有資料 audit 由 PR comment 記錄；目前未提交任何 raw MOPS 財報。
 
 ## 尚未宣稱
