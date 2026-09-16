@@ -1,12 +1,12 @@
 # My-TW-Coverage 測試開發計畫
 
-**狀態：** Draft PR／Phase 0 規劃，尚未修改既有報告與財務資料  
+**狀態：** Draft PR／Phase 5 本機 pilot 規劃，尚未修改既有報告與財務資料
 **建立日期：** 2026-09-15  
-**主要測試主題：** MOPS XBRL／TIFRS 擷取、結構化轉換與 Perch 相容性
+**主要測試主題：** MOPS XBRL／TIFRS 擷取、多產業 SQLite 語意層與 Python 分析
 
 ## 1. 目的
 
-以可回溯、可重跑、低風險的方式，驗證本專案是否能將台灣公開資訊觀測站（MOPS）的 XBRL／iXBRL 財報轉換為結構化資料，供後續 Perch 或本機分析流程使用。
+以可回溯、可重跑、低風險的方式，驗證本專案是否能將台灣公開資訊觀測站（MOPS）的 XBRL／iXBRL 財報轉換為結構化資料，供本機 SQLite／Python 分析流程使用；Perch 僅保留為未來外部匯出邊界。
 
 本計畫先建立測試證據與資料契約，再決定是否進入正式 pipeline；不因單次成功下載就宣稱已支援全部 TIFRS 財報。
 
@@ -27,7 +27,7 @@
 3. 2330 台積電、2026 年第 2 季合併資產負債表作為第一個 golden fixture。
 4. 資產負債表、損益表、現金流量表的欄位映射與單位正規化。
 5. 來源 URL、下載時間、公司代號、年度／季度、報表類型、taxonomy 與 parser 版本的 provenance。
-6. 供 Perch 或其他決定論分析工具使用的 CSV／JSON／Markdown 表格輸出契約。
+6. 供本機 SQLite／Python 與未來其他工具使用的 CSV／JSON 輸出契約。
 7. 單元測試、fixture 測試、整合測試與失敗重試／封鎖行為測試。
 
 ### 不包含
@@ -78,14 +78,25 @@
 
 **Gate：** 通過。schema、JSON／CSV fixture 與 deterministic 測試完成，且未覆寫現有報告財務表格；契約詳見 `docs/PHASE3_DATA_CONTRACT.md`。
 
+### Phase 3A — 多產業 SQLite 語意 schema（設計完成，實作前置）
+
+- [x] 確認一般產業、金控、銀行、保險、證券不可共用單一寬表。
+- [x] 定義 raw／provenance layer、semantic layer、版本化 concept mapping 與產業 views。
+- [x] 定義 qualified QName、合併／個別、期間角色、累計／單季、重述與 unknown／NULL 規則。
+- [ ] 建立 SQLite migration、外鍵與 sanitized schema fixture。
+- [ ] 以一般產業＋金控＋銀行 pilot fixture 驗證跨產業共存與 query。
+
+**Gate：** 設計完成；SQLite migration、金融業 fixture 與 live mapping 尚未完成。設計詳見 `docs/SQLITE_FINANCIAL_SCHEMA.md`。
+
 ### Phase 4 — 本機分析介面與未來 Perch 匯出邊界
 
 - [x] 本機 JSON／CSV import 與欄位／單位保留。
 - [x] 本機 query、Decimal calculation、來源 URL／input hash provenance。
 - [x] JSON／CSV mismatch、空結果與 deterministic output 測試。
+- [ ] 將本機分析介面接上 SQLite semantic layer；目前既有 JSON／CSV interface 維持相容。
 - [ ] Perch Desktop／CLI／Web 實測；不部署付費 runtime，僅列為未來外部匯出驗證。
 
-**Gate：** 通過（本機分析介面 MVP）。Perch 相容性不屬於本 Gate，維持 future external validation；詳見 `docs/PHASE4_PERCH_COMPATIBILITY.md` 與 `docs/PHASE4_REPLAN.md`。
+**Gate：** JSON／CSV 本機分析介面通過；多產業 SQLite semantic layer 仍待 Phase 3A migration／fixture Gate。Perch 相容性不屬於本 Gate，維持 future external validation。
 
 ### Phase 5 — 本機 pipeline 整合與 Pilot
 
@@ -93,6 +104,7 @@
 - [x] 沿用 rate limit、403、timeout、空檔案、解析錯誤與非 XBRL 回應的分類錯誤。
 - [x] 以成功與失敗 fixture job 驗證 1–3 家公司、單一季度 pilot 隔離，不碰全量資料。
 - [x] 驗證 provenance、冪等下載、重跑一致性與失敗不污染既有報告。
+- [ ] 以 2330＋一家金控＋一家銀行進行單季合併報表 live pilot；保險／證券列為第二輪。
 - [ ] 只有在 pilot 通過且取得獨立決策後，才提出更大範圍的季度更新方案。
 
 **Gate：** 進行中。Phase 5 可沿用 transport／cache／錯誤隔離骨架，正式 live pilot 仍需另行確認公司、季度、排程與 runtime DB 路徑；不宣稱全量同步。詳見 `docs/PHASE5_PILOT.md`。
@@ -106,7 +118,8 @@
 | Parser | TIFRS namespace、context、unit、decimals | normalized facts 穩定且可回溯 |
 | Schema | 三大財報與合併／個別 | 欄位契約與單位契約通過 |
 | Determinism | 同一輸入重跑 | output hash／語意結果一致 |
-| Perch | CSV／JSON 匯入與計算 | 能讀取或明確記錄不相容原因 |
+| Local SQLite/Python | 長表、產業 view、Decimal 計算與 provenance | 跨產業可共存，unknown 不補零且結果可追溯 |
+| Future export | CSV／JSON 邊界 | 保留 canonical 契約；不宣稱 Perch 相容 |
 | Regression | 現有報告與 wikilink graph | 既有檔案 checksum／測試不受影響 |
 
 ## 6. 交付物
@@ -116,7 +129,7 @@
 3. 隔離的 golden fixture metadata。
 4. 下載器與 Arelle parser（僅在 Phase 0–1 Gate 通過後實作）。
 5. canonical schema、CSV／JSON sample output。
-6. 測試報告與 Perch 相容性結論。
+6. 測試報告、本機 SQLite／Python 分析結果與未來匯出邊界說明。
 7. Pilot handoff：限制、已知問題、回滾方式與下一步建議。
 
 ## 7. PR 工作方式
