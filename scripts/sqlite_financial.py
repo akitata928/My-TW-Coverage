@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import csv
 import hashlib
 import json
 import sqlite3
@@ -46,6 +47,44 @@ def _load_json(path: Path) -> list[dict[str, Any]]:
     return rows
 
 
+def _load_csv(path: Path) -> list[dict[str, Any]]:
+    with path.open(encoding="utf-8", newline="") as handle:
+        rows = list(csv.DictReader(handle))
+    if not rows:
+        raise ValueError(f"{path} contains no canonical facts")
+    return rows
+
+
+def _canonical_compare_value(value: Any) -> str:
+    if isinstance(value, (dict, list)):
+        return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    return "" if value is None else str(value)
+
+
+def _csv_compare_value(value: str | None) -> str:
+    text = "" if value is None else value
+    if text.startswith("[") or text.startswith("{"):
+        try:
+            return _canonical_compare_value(json.loads(text))
+        except json.JSONDecodeError:
+            pass
+    return text
+
+
+def validate_json_csv(json_path: Path, csv_path: Path) -> list[dict[str, Any]]:
+    """Reject a JSON/CSV pair unless every emitted canonical field agrees."""
+    json_rows = _load_json(json_path)
+    csv_rows = _load_csv(csv_path)
+    if len(json_rows) != len(csv_rows):
+        raise ValueError("JSON and CSV fact counts differ")
+    fields = sorted({key for row in json_rows for key in row})
+    for index, (json_row, csv_row) in enumerate(zip(json_rows, csv_rows, strict=True)):
+        for field in fields:
+            if _canonical_compare_value(json_row.get(field)) != _csv_compare_value(csv_row.get(field)):
+                raise ValueError(f"JSON and CSV differ at row {index}, field {field}")
+    return json_rows
+
+
 def _namespace(qname: str) -> tuple[str, str]:
     if "#" in qname:
         namespace, local = qname.rsplit("#", 1)
@@ -71,6 +110,7 @@ def import_canonical(
     db_path: Path,
     json_path: Path,
     *,
+    csv_path: Path | None = None,
     industry_family: str,
     institution_type: str | None = None,
     parent_ticker: str | None = None,
@@ -78,7 +118,7 @@ def import_canonical(
 ) -> int:
     if industry_family not in INDUSTRIES:
         raise ValueError(f"industry_family must be one of: {', '.join(sorted(INDUSTRIES))}")
-    rows = _load_json(json_path)
+    rows = validate_json_csv(json_path, csv_path) if csv_path else _load_json(json_path)
     ticker = str(rows[0]["ticker"])
     company_name = str(rows[0]["company_name"])
     if any(str(row.get("ticker")) != ticker for row in rows):
@@ -227,29 +267,59 @@ def query_financial_facts(
     ticker: str | None = None,
     statement_type: str | None = None,
     canonical_concept: str | None = None,
+    source_qname: str | None = None,
+    report_period: str | None = None,
+    period_role: str | None = None,
+    consolidation_scope: str | None = None,
+    unit: str | None = None,
+    quality_status: str | None = None,
 ) -> list[dict[str, Any]]:
-    """Return deterministic, provenance-preserving rows from the semantic views."""
+    """Return deterministic, provenance-preserving rows from the semantic view."""
     if industry_family is not None and industry_family not in INDUSTRIES:
         raise ValueError(f"unknown industry_family: {industry_family}")
-    view = {
-        None: "v_financial_facts",
-        "general_industrial": "v_general_industrial_financials",
-        "financial_holding": "v_financial_holding_financials",
-        "bank": "v_bank_financials",
-        "insurance": "v_insurance_financials",
-        "securities": "v_securities_financials",
-        "unknown": "v_financial_facts",
-    }[industry_family]
     clauses: list[str] = []
     values: list[str] = []
-    for column, value in (("ticker", ticker), ("statement_type", statement_type), ("canonical_concept", canonical_concept)):
+    for column, value in (
+        ("industry_family", industry_family),
+        ("ticker", ticker),
+        ("statement_type", statement_type),
+        ("canonical_concept", canonical_concept),
+        ("concept_qname", source_qname),
+        ("report_period", report_period),
+        ("period_role", period_role),
+        ("consolidation_scope", consolidation_scope),
+        ("normalized_unit", unit),
+    ):
         if value is not None:
             clauses.append(f"{column} = ?")
             values.append(value)
-    sql = f"SELECT * FROM {view}" + (" WHERE " + " AND ".join(clauses) if clauses else "") + " ORDER BY ticker, statement_type, concept_qname, fact_sha256"
+    if quality_status is not None:
+        if quality_status not in {"clean", "warning", "error"}:
+            raise ValueError("quality_status must be clean, warning, or error")
+        if quality_status == "clean":
+            clauses.append("NOT EXISTS (SELECT 1 FROM data_quality_issues dq WHERE dq.statement_fact_id = statement_fact_id)")
+        else:
+            clauses.append("EXISTS (SELECT 1 FROM data_quality_issues dq WHERE dq.statement_fact_id = statement_fact_id AND dq.severity = ?)")
+            values.append(quality_status)
+    sql = "SELECT * FROM v_financial_facts" + (" WHERE " + " AND ".join(clauses) if clauses else "") + " ORDER BY ticker, statement_type, concept_qname, fact_sha256"
     with sqlite3.connect(db_path) as db:
         db.row_factory = sqlite3.Row
         return [dict(row) for row in db.execute(sql, values).fetchall()]
+
+
+def quality_report(db_path: Path) -> dict[str, Any]:
+    """Return auditable quality counts without changing raw facts."""
+    with sqlite3.connect(db_path) as db:
+        def grouped(sql: str) -> dict[str, int]:
+            return {str(key or "unknown"): int(count) for key, count in db.execute(sql).fetchall()}
+
+        return {
+            "issues_by_severity": grouped("SELECT severity, count(*) FROM data_quality_issues GROUP BY severity ORDER BY severity"),
+            "issues_by_type": grouped("SELECT issue_type, count(*) FROM data_quality_issues GROUP BY issue_type ORDER BY issue_type"),
+            "mapping_status": grouped("SELECT mapping_status, count(*) FROM statement_facts GROUP BY mapping_status ORDER BY mapping_status"),
+            "value_status": grouped("SELECT value_status, count(*) FROM xbrl_facts GROUP BY value_status ORDER BY value_status"),
+            "unknown_industry_facts": int(db.execute("SELECT count(*) FROM statement_facts WHERE industry_family = 'unknown'").fetchone()[0]),
+        }
 
 
 def analyze_database(db_path: Path, **filters: str | None) -> dict[str, Any]:
@@ -266,6 +336,7 @@ def analyze_database(db_path: Path, **filters: str | None) -> dict[str, Any]:
         "fact_count": len(rows),
         "sum_by_unit": {unit: format(value, "f") for unit, value in sorted(totals.items())},
         "provenance": sorted({(row["source_url"], row["raw_sha256"]) for row in rows}),
+        "quality": quality_report(db_path),
         "runtime": "local_python_sqlite",
     }
 
@@ -278,6 +349,7 @@ def main() -> int:
     import_parser = sub.add_parser("import-canonical")
     import_parser.add_argument("db", type=Path)
     import_parser.add_argument("json_input", type=Path)
+    import_parser.add_argument("--csv-input", type=Path)
     import_parser.add_argument("--industry-family", required=True, choices=sorted(INDUSTRIES))
     import_parser.add_argument("--institution-type")
     import_parser.add_argument("--parent-ticker")
@@ -290,17 +362,27 @@ def main() -> int:
     query_parser.add_argument("--ticker")
     query_parser.add_argument("--statement-type")
     query_parser.add_argument("--canonical-concept")
+    query_parser.add_argument("--source-qname")
+    query_parser.add_argument("--report-period")
+    query_parser.add_argument("--period-role")
+    query_parser.add_argument("--consolidation-scope")
+    query_parser.add_argument("--unit")
+    query_parser.add_argument("--quality-status", choices=("clean", "warning", "error"))
+    quality_parser = sub.add_parser("quality")
+    quality_parser.add_argument("db", type=Path)
     args = parser.parse_args()
     if args.command == "migrate":
         migrate(args.db)
         return 0
     if args.command == "import-canonical":
-        print(json.dumps({"inserted": import_canonical(args.db, args.json_input, industry_family=args.industry_family, institution_type=args.institution_type, parent_ticker=args.parent_ticker, mapping_version=args.mapping_version)}, ensure_ascii=False))
+        print(json.dumps({"inserted": import_canonical(args.db, args.json_input, csv_path=args.csv_input, industry_family=args.industry_family, institution_type=args.institution_type, parent_ticker=args.parent_ticker, mapping_version=args.mapping_version)}, ensure_ascii=False))
         return 0
     if args.command == "integrity":
         print(json.dumps(integrity_report(args.db), ensure_ascii=False, indent=2))
+    elif args.command == "quality":
+        print(json.dumps(quality_report(args.db), ensure_ascii=False, indent=2, sort_keys=True))
     else:
-        print(json.dumps(analyze_database(args.db, industry_family=args.industry_family, ticker=args.ticker, statement_type=args.statement_type, canonical_concept=args.canonical_concept), ensure_ascii=False, indent=2, sort_keys=True))
+        print(json.dumps(analyze_database(args.db, industry_family=args.industry_family, ticker=args.ticker, statement_type=args.statement_type, canonical_concept=args.canonical_concept, source_qname=args.source_qname, report_period=args.report_period, period_role=args.period_role, consolidation_scope=args.consolidation_scope, unit=args.unit, quality_status=args.quality_status), ensure_ascii=False, indent=2, sort_keys=True))
     return 0
 
 

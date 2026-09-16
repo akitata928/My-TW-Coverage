@@ -19,7 +19,7 @@ SQLite semantic layer 依 `docs/SQLITE_FINANCIAL_SCHEMA.md` 採原始長表、�
 - transport 層沿用 Phase 1 的 TLS、有限退避與 `http_403`／`timeout`／`network_error`／空內容／非 XBRL 分類。
 - fetch 失敗與 parser 失敗分開記錄；單一公司失敗不會寫出 partial canonical output，也不會阻擋其他 pilot job。
 - 每個成功 job 保留來源 URL、抓取時間與 raw input SHA-256；結果 manifest 以穩定排序輸出，支援重跑比對。
-- canonical JSON／CSV 交給 `scripts/local_analysis.py` 做 import、query、Decimal calculation 與 provenance；不需要 Perch runtime。
+- canonical JSON／CSV 先由 `scripts/sqlite_financial.py import-canonical --csv-input` 做全欄位一致性檢查，再匯入 SQLite；`query`、`quality` 與 Python Decimal calculation 保留 provenance，不需要 Perch runtime。
 - canonical JSON／CSV 仍是匯入／匯出邊界；SQLite 是本機持久化分析後端，不需要 Perch runtime。
 - 第一輪 live pilot 建議為 2330（一般製造／科技）＋一家金控＋一家銀行，單一季度合併報表；保險與證券列為第二輪。
 - pilot 只允許 3 家以內、單一季度；不執行全量下載，不修改 `Pilot_Reports/`。
@@ -28,7 +28,7 @@ SQLite semantic layer 依 `docs/SQLITE_FINANCIAL_SCHEMA.md` 採原始長表、�
 
 - 離線 pilot harness 已以成功與 HTTP 403 fixture job 驗證成功／失敗隔離。
 - 相同成功 job 重跑會產生 `cache_hit` event，probe 不會再次呼叫。
-- 多產業 SQLite migration、離線 fixture 與本機 query 已完成；金融業正式 MOPS mapping 與上述 live pilot 仍是下一個獨立 Gate。
+- 多產業 SQLite migration、離線 fixture、本機 query、quality report、JSON／CSV mismatch rejection 與 Decimal/provenance 已完成；金融業正式 MOPS mapping 與上述 live pilot 仍是下一個獨立 Gate。
 - 完整測試與既有資料 audit 由 PR comment 記錄；目前未提交任何 raw MOPS 財報。
 
 ## 尚未宣稱

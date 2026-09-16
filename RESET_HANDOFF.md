@@ -39,7 +39,9 @@ refresh 或 AI enrichment；那會製造大 diff、成本與難以回溯的變�
 
 - Draft PR #2 分支：`plan/mops-xbrl-test-development`。
 - Phase 3A SQLite migration、raw／semantic layer、產業 views、Python query 與去敏 multi-industry fixture 已完成；詳見 `docs/SQLITE_FINANCIAL_SCHEMA.md`。
+- SQLite／Python 分析介面已完成：`import-canonical` 可同時驗證 JSON／CSV 全欄位一致性，`query` 支援產業、ticker、報表期間、statement、期間角色、合併範圍、unit 與 quality status，另有 `quality` 報告與 Decimal/provenance 結果。
 - 離線驗證涵蓋 2330 一般產業、2882 金控、2801 銀行；SQLite `integrity_check=ok`、foreign key check 空、migration 可重跑且資料冪等。
+- 回歸驗證新增 JSON／CSV mismatch rejection、跨產業篩選、Decimal 彙總與 quality report；未知 mapping 維持 warning，不補零。
 - 尚未完成：正式金融業 MOPS concept mapping、保險／證券 fixture、2330＋金控＋銀行 live pilot。未下載全量資料，未修改 `Pilot_Reports/`。
 - 本機環境沒有 pytest 模組；已以 `compileall`、`git diff --check` 與獨立 SQLite smoke test 驗證。安裝測試套件前需另行確認。
 

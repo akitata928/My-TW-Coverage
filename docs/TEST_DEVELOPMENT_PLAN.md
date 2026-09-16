@@ -78,7 +78,7 @@
 
 **Gate：** 通過。schema、JSON／CSV fixture 與 deterministic 測試完成，且未覆寫現有報告財務表格；契約詳見 `docs/PHASE3_DATA_CONTRACT.md`。
 
-### Phase 3A — 多產業 SQLite 語意 schema（設計完成，實作前置）
+### Phase 3A — 多產業 SQLite 語意 schema（離線 Gate 通過）
 
 - [x] 確認一般產業、金控、銀行、保險、證券不可共用單一寬表。
 - [x] 定義 raw／provenance layer、semantic layer、版本化 concept mapping 與產業 views。
@@ -88,15 +88,17 @@
 
 **Gate：** 通過（離線 schema／migration MVP）。金融業正式 MOPS mapping 與 live pilot 仍待驗證；設計與 migration 詳見 `docs/SQLITE_FINANCIAL_SCHEMA.md`。
 
-### Phase 4 — 本機分析介面與未來 Perch 匯出邊界
+### Phase 4 — 本機分析介面與未來 Perch 匯出邊界（SQLite/Python Gate 通過）
 
 - [x] 本機 JSON／CSV import 與欄位／單位保留。
 - [x] 本機 query、Decimal calculation、來源 URL／input hash provenance。
 - [x] JSON／CSV mismatch、空結果與 deterministic output 測試。
 - [x] 將本機分析介面接上 SQLite semantic layer；目前既有 JSON／CSV interface 維持相容。
+- [x] SQLite 匯入前拒絕 JSON／CSV 任一欄位不一致，並支援報表期間、期間角色、合併範圍、單位與品質狀態篩選。
+- [x] 提供 quality report、Decimal 彙總與來源 provenance；未知 mapping 保留 warning，不補零。
 - [ ] Perch Desktop／CLI／Web 實測；不部署付費 runtime，僅列為未來外部匯出驗證。
 
-**Gate：** JSON／CSV 本機分析介面通過；多產業 SQLite semantic layer 仍待 Phase 3A migration／fixture Gate。Perch 相容性不屬於本 Gate，維持 future external validation。
+**Gate：** SQLite／Python 本機分析介面通過；JSON／CSV mismatch、跨產業 query、Decimal、quality report 與 provenance 已有離線回歸驗證。Perch 相容性不屬於本 Gate，維持 future external validation。
 
 ### Phase 5 — 本機 pipeline 整合與 Pilot
 

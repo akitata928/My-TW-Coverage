@@ -25,9 +25,17 @@ def load_facts(json_path: Path, csv_path: Path) -> list[dict[str, Any]]:
         raise ValueError("JSON and CSV must both contain facts")
     if len(json_facts) != len(csv_facts):
         raise ValueError("JSON and CSV fact counts differ")
+    fields = sorted({key for fact in json_facts for key in fact})
     for index, (json_fact, csv_fact) in enumerate(zip(json_facts, csv_facts, strict=True)):
-        for field in ("concept_qname", "value", "unit", "context_ref"):
-            if str(json_fact.get(field, "")) != csv_fact.get(field, ""):
+        for field in fields:
+            json_value = json_fact.get(field)
+            csv_value = csv_fact.get(field, "")
+            if isinstance(json_value, (dict, list)):
+                try:
+                    csv_value = json.loads(csv_value)
+                except json.JSONDecodeError:
+                    pass
+            if ("" if json_value is None else json_value) != csv_value:
                 raise ValueError(f"JSON and CSV differ at row {index}, field {field}")
     return json_facts
 
