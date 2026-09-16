@@ -34,8 +34,10 @@ SQLite semantic layer 依 `docs/SQLITE_FINANCIAL_SCHEMA.md` 採原始長表、�
 - Arelle diagnostics 仍為 2,669／3,489／2,542，因官方 taxonomy／label linkbase 未納入 runtime；`label_zh_tw` 維持 unavailable，未宣稱中文標籤或完整 semantic mapping 已驗證。
 - 新增 exact-name statement anchors：只將少數可明確辨識的 Assets／Liabilities／Equity、金融資產／存款／放款、利息與現金流 anchor 分類；其餘 facts 仍為 `statement_type=unknown`，不以子字串推斷。
 - 局部分類結果：2330 `67/8/8/1,019`、2882 `106/4/8/839`、2801 `68/4/8/1,631`（balance／income／cash flow／unknown）。
+- 第二輪指定公司：6005 群益金鼎證券已完成 2026 Q2／report_id=C／`t164sb01` live probe；官方回應 HTTP 200，Arelle 2.45.1 解析 1,003 筆 numeric facts、89 contexts、4 units。保守 securities registry 對 93 筆 facts 做 provisional exact-name mapping，其餘 906 筆保留 unknown；SQLite `v_securities_financials`、Decimal/provenance、integrity/FK 與重跑驗證通過。
+- 第二輪指定公司：5856 富邦人壽在同一官方契約下（report_id=C／A、`t164sb01`／`t164sb02`／`t164sb03`）均回 HTTP 200 但內容為 MOPS invalid HTML，錯誤文字為「下載檔名或路徑不正確」，未取得 XBRL。原始錯誤頁只保存在 repo 外 cache；未以替代代碼或猜測 endpoint 代替 5856。
 - 完整測試與既有資料 audit 由 PR comment 記錄；目前未提交任何 raw MOPS 財報。
 
 ## 尚未宣稱
 
-這個 Phase 5 交付是可測試的 pipeline／pilot 骨架，不是正式全量同步，也不代表所有 MOPS 報表 function 或所有公司的來源可用。正式啟用前仍須由獨立決策確認 SQLite migration、mapping fixture、公司範圍、季度、排程與 runtime DB 路徑。保險與證券需另行驗證 IFRS 17 及各自業務科目後才納入。此輪 canonical live output 的 `period_role`、`accumulation`、`restatement_status` 以 `unknown` 保存，statement_type 僅採 exact-name anchors，其餘仍為 unknown；取得完整可驗證 statement boundary 前，不宣稱三大報表 semantic Gate 通過。
+這個 Phase 5 交付是可測試的 pipeline／pilot 骨架，不是正式全量同步，也不代表所有 MOPS 報表 function 或所有公司的來源可用。正式啟用前仍須由獨立決策確認 SQLite migration、mapping fixture、公司範圍、季度、排程與 runtime DB 路徑。保險與證券需另行驗證 IFRS 17 及各自業務科目後才納入。此輪 canonical live output 的 `period_role`、`accumulation`、`restatement_status` 以 `unknown` 保存，statement_type 僅採 exact-name anchors，其餘仍為 unknown；取得完整可驗證 statement boundary 前，不宣稱三大報表 semantic Gate 通過。5856 目前是官方來源 blocker，不應宣稱保險 live pilot 完成，也不應自行替換公司。

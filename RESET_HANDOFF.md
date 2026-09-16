@@ -53,6 +53,9 @@ refresh 或 AI enrichment；那會製造大 diff、成本與難以回溯的變�
 - SQLite pilot integrity=`ok`、foreign key check=`[]`、11 tables；quality warnings 3,734，全部來自 provisional／unknown mapping，沒有 missing values。
 - statement boundary 尚未由 `t164sb01` 可驗證切分，因此 live canonical 的 `statement_type`、`period_role`、`accumulation`、`restatement_status` 以 `unknown` 保存；不可宣稱三大報表 semantic Gate 已完成。
 - 後續覆核新增 exact-name statement anchors；目前分類結果為 2330：67 balance／8 income／8 cash flow／1,019 unknown，2882：106／4／8／839，2801：68／4／8／1,631。anchor 以外仍維持 unknown，不代表完整 statement boundary 已驗證。
+- 第二輪指定證券 6005 群益金鼎證券：2026 Q2／report_id=C／`t164sb01` HTTP 200，Arelle 2.45.1 解析 1,003 numeric facts；repo 外 round-2 SQLite `integrity_check=ok`、foreign key check 空，`v_securities_financials` 999 筆，Decimal/provenance 與重跑驗證通過。registry 已升版為 `mops-tifrs-2026-09-pilot-2`，證券專業 mapping 僅採觀察到的 exact local-name provisional anchors。
+- 第二輪指定保險 5856 富邦人壽：C/A × `t164sb01`／`t164sb02`／`t164sb03` 均 HTTP 200 但回傳 MOPS invalid HTML「下載檔名或路徑不正確」，未取得 XBRL；不得以猜測、繞過或替代公司宣稱完成。若要完成保險 live pilot，下一步需要 Stan 決定是否指定另一個官方可下載的保險公司／代碼。
+- 本輪 unittest：23 passed；`compileall`、`git diff --check` 通過。原始 6005 XBRL、5856 錯誤頁、normalized／canonical／SQLite／venv 均在 repo 外，未修改 `Pilot_Reports/`。
 - 本機環境沒有 pytest 模組；已以 `compileall`、`git diff --check` 與獨立 SQLite smoke test 驗證。安裝測試套件前需另行確認。
 
 ## 新 session 入口

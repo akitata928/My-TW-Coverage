@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the bounded 2026 Q2, three-industry MOPS pilot from an external cache.
+"""Run the bounded 2026 Q2 MOPS pilot from an external cache.
 
 This runner never downloads or copies raw filings into the repository.  It
 consumes parser output from the repo-external cache, emits canonical files to
@@ -48,6 +48,11 @@ JOBS = (
     {"ticker": "2801", "company_name": "彰化商業銀行股份有限公司", "industry_family": "bank", "institution_type": "bank"},
 )
 
+SECOND_ROUND_JOBS = (
+    {"ticker": "5856", "company_name": "富邦人壽保險股份有限公司", "industry_family": "insurance", "institution_type": "insurance"},
+    {"ticker": "6005", "company_name": "群益金鼎證券股份有限公司", "industry_family": "securities", "institution_type": "securities"},
+)
+
 
 def _now() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
@@ -90,7 +95,7 @@ def _classify_statements(facts: list[Any], registry_path: Path) -> list[Any]:
     return result
 
 
-def run(cache_root: Path, output_root: Path, db_path: Path, registry_path: Path) -> dict[str, Any]:
+def run(cache_root: Path, output_root: Path, db_path: Path, registry_path: Path, jobs: tuple[dict[str, str], ...] = JOBS) -> dict[str, Any]:
     output_root.mkdir(parents=True, exist_ok=True)
     registry = SQLITE.load_mapping_registry(registry_path)
     manifest: dict[str, Any] = {
@@ -100,7 +105,7 @@ def run(cache_root: Path, output_root: Path, db_path: Path, registry_path: Path)
         "mapping_registry": str(registry_path),
         "jobs": [],
     }
-    for job in JOBS:
+    for job in jobs:
         ticker = job["ticker"]
         normalized_path = cache_root / f"{ticker}.normalized.json"
         if not normalized_path.exists():
@@ -130,7 +135,7 @@ def run(cache_root: Path, output_root: Path, db_path: Path, registry_path: Path)
             db_path, json_path, csv_path=csv_path,
             industry_family=job["industry_family"],
             institution_type=job["institution_type"],
-            mapping_version="mops-tifrs-2026-09-pilot-1",
+            mapping_version=json.loads(registry_path.read_text(encoding="utf-8"))["registry_version"],
             mapping_registry=registry_path,
         )
         manifest["jobs"].append({
@@ -162,9 +167,11 @@ def main() -> int:
     parser.add_argument("--output-root", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("--db", type=Path)
     parser.add_argument("--mapping-registry", type=Path, default=ROOT / "config/mops_financial_mapping.json")
+    parser.add_argument("--second-round", action="store_true", help="run the bounded insurance/securities job set")
     args = parser.parse_args()
     db = args.db or args.output_root / "financial.sqlite"
-    print(json.dumps(run(args.cache_root, args.output_root, db, args.mapping_registry), ensure_ascii=False, indent=2, sort_keys=True))
+    jobs = SECOND_ROUND_JOBS if args.second_round else JOBS
+    print(json.dumps(run(args.cache_root, args.output_root, db, args.mapping_registry, jobs), ensure_ascii=False, indent=2, sort_keys=True))
     return 0
 
 

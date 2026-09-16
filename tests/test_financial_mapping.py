@@ -16,7 +16,7 @@ class FinancialMappingTests(unittest.TestCase):
     def test_registry_is_versioned_and_exact_name_only(self):
         path = ROOT / "config/mops_financial_mapping.json"
         payload = json.loads(path.read_text(encoding="utf-8"))
-        self.assertEqual(payload["registry_version"], "mops-tifrs-2026-09-pilot-1")
+        self.assertEqual(payload["registry_version"], "mops-tifrs-2026-09-pilot-2")
         registry = MODULE.load_mapping_registry(path)
         self.assertEqual(registry[("bank", "DepositsFromCustomers")]["mapping_status"], "provisional")
         self.assertEqual(registry[("__default__", "__default__")]["mapping_status"], "unknown")

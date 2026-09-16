@@ -304,7 +304,13 @@ def integrity_report(db_path: Path) -> dict[str, Any]:
             "tables": db.execute("SELECT count(*) FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'").fetchone()[0],
             "view_counts": {
                 name: db.execute(f"SELECT count(*) FROM {name}").fetchone()[0]
-                for name in ("v_general_industrial_financials", "v_financial_holding_financials", "v_bank_financials")
+                for name in (
+                    "v_general_industrial_financials",
+                    "v_financial_holding_financials",
+                    "v_bank_financials",
+                    "v_insurance_financials",
+                    "v_securities_financials",
+                )
             },
         }
 
