@@ -88,7 +88,7 @@
 
 **Gate：** 通過（離線 schema／migration MVP）。金融業正式 MOPS mapping 與 live pilot 仍待驗證；設計與 migration 詳見 `docs/SQLITE_FINANCIAL_SCHEMA.md`。
 
-第二輪 live pilot 的保險／證券範圍已指定為 5856 富邦人壽與 6005 群益金鼎證券；6005 已完成，5856 因官方端點回傳 invalid HTML 暫列 blocker，不自動替換公司。
+第二輪 live pilot 的保險／證券範圍改指定為 2833 台灣人壽與 6005 群益金鼎證券；兩家公司均已完成官方下載與 Arelle 解析，專業 mapping 仍採 provisional／unknown。
 
 ### Phase 4 — 本機分析介面與未來 Perch 匯出邊界（SQLite/Python Gate 通過）
 

@@ -49,7 +49,7 @@ JOBS = (
 )
 
 SECOND_ROUND_JOBS = (
-    {"ticker": "5856", "company_name": "富邦人壽保險股份有限公司", "industry_family": "insurance", "institution_type": "insurance"},
+    {"ticker": "2833", "company_name": "台灣人壽保險股份有限公司", "industry_family": "insurance", "institution_type": "insurance"},
     {"ticker": "6005", "company_name": "群益金鼎證券股份有限公司", "industry_family": "securities", "institution_type": "securities"},
 )
 

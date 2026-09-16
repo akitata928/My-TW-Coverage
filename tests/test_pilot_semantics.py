@@ -26,7 +26,7 @@ class PilotSemanticTests(unittest.TestCase):
         self.assertEqual([fact.statement_type for fact in facts], ["balance_sheet", "unknown", "income_statement"])
 
     def test_second_round_job_set_is_explicitly_insurance_and_securities(self):
-        self.assertEqual([job["ticker"] for job in MODULE.SECOND_ROUND_JOBS], ["5856", "6005"])
+        self.assertEqual([job["ticker"] for job in MODULE.SECOND_ROUND_JOBS], ["2833", "6005"])
         self.assertEqual([job["industry_family"] for job in MODULE.SECOND_ROUND_JOBS], ["insurance", "securities"])
 
 
