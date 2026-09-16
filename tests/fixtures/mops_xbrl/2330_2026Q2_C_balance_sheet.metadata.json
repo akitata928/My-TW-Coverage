@@ -1,0 +1,22 @@
+{
+  "ticker": "2330",
+  "company_name": "台積電",
+  "report_period": "2026Q2",
+  "statement_type": "balance_sheet",
+  "report_id": "C",
+  "function_name": "t164sb01",
+  "source_url": "https://mopsov.twse.com.tw/server-java/FileDownLoad?functionName=t164sb01&step=9&co_id=2330&year=2026&season=2&report_id=C",
+  "retrieved_at": "2026-09-15T05:24:53Z",
+  "http_status": 200,
+  "download_status": "success_ixbrl_candidate",
+  "parse_status": "not_run",
+  "content_type": "; charset=iso-8859-1",
+  "content_disposition": "attachment; filename=\"tifrs-fr1-m1-ci-cr-2330-2026Q2.html\"",
+  "content_length": 759227,
+  "sha256": "351b4e59781a71504b30cec9d977e060ab4f978d31695e027252ecfe793d1e55",
+  "notes": [
+    "Raw response intentionally excluded from Git pending Phase 1 authorization decision.",
+    "TLS verification remained enabled; no Cookie or session state was used.",
+    "parse_status=not_run means Arelle validation belongs to Phase 2."
+  ]
+}

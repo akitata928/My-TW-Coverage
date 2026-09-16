@@ -1,0 +1,71 @@
+{
+  "metadata": {
+    "input_sha256": "351b4e59781a71504b30cec9d977e060ab4f978d31695e027252ecfe793d1e55",
+    "labels": "zh-TW unavailable; English local-name fallback",
+    "parser": "arelle-release",
+    "parser_version": "2.45.1",
+    "source": "2330/2026Q2/C"
+  },
+  "facts": [
+    {
+      "concept_qname": "{http://www.xbrl.org/tifrs/es/2026-03-31}CashDividendsOfOrdinaryShare",
+      "context_ref": "From20250101To20250630_CapitalReserveMember",
+      "dimensions": [["{https://xbrl.ifrs.org/taxonomy/2025-03-27/ifrs-full}ComponentsOfEquityAxis", "{https://xbrl.ifrs.org/taxonomy/2025-03-27/ifrs-full}CapitalReserveMember"]],
+      "entity_identifier": "2330",
+      "entity_scheme": "http://www.twse.com.tw",
+      "label_en": "CashDividendsOfOrdinaryShare",
+      "label_source": "qualified_name_local_fallback",
+      "label_zh_tw": null,
+      "local_name": "CashDividendsOfOrdinaryShare",
+      "namespace": "http://www.xbrl.org/tifrs/es/2026-03-31",
+      "normalized_unit": "{http://www.xbrl.org/2003/iso4217}TWD",
+      "normalized_value": "0",
+      "period_end": "2025-07-01T00:00:00",
+      "period_instant": null,
+      "period_start": "2025-01-01T00:00:00",
+      "raw_decimals": "-3",
+      "raw_unit": "{http://www.xbrl.org/2003/iso4217}TWD",
+      "raw_value": "0"
+    },
+    {
+      "concept_qname": "{http://www.xbrl.org/tifrs/bsci/ci/2026-03-31}AccountsReceivableDuefromRelatedPartiesNet",
+      "context_ref": "AsOf20260630",
+      "dimensions": [],
+      "entity_identifier": "2330",
+      "entity_scheme": "http://www.twse.com.tw",
+      "label_en": "AccountsReceivableDuefromRelatedPartiesNet",
+      "label_source": "qualified_name_local_fallback",
+      "label_zh_tw": null,
+      "local_name": "AccountsReceivableDuefromRelatedPartiesNet",
+      "namespace": "http://www.xbrl.org/tifrs/bsci/ci/2026-03-31",
+      "normalized_unit": "{http://www.xbrl.org/2003/iso4217}TWD",
+      "normalized_value": "5160539000000",
+      "period_end": "2026-07-01T00:00:00",
+      "period_instant": "2026-07-01T00:00:00",
+      "period_start": null,
+      "raw_decimals": "-3",
+      "raw_unit": "{http://www.xbrl.org/2003/iso4217}TWD",
+      "raw_value": "5160539000"
+    },
+    {
+      "concept_qname": "{http://www.xbrl.org/tifrs/bsci/ci/2026-03-31}EquivalentIssueSharesOfAdvanceReceiptsForOrdinaryShare",
+      "context_ref": "AsOf20250630",
+      "dimensions": [],
+      "entity_identifier": "2330",
+      "entity_scheme": "http://www.twse.com.tw",
+      "label_en": "EquivalentIssueSharesOfAdvanceReceiptsForOrdinaryShare",
+      "label_source": "qualified_name_local_fallback",
+      "label_zh_tw": null,
+      "local_name": "EquivalentIssueSharesOfAdvanceReceiptsForOrdinaryShare",
+      "namespace": "http://www.xbrl.org/tifrs/bsci/ci/2026-03-31",
+      "normalized_unit": "{http://www.xbrl.org/2003/instance}shares",
+      "normalized_value": "0",
+      "period_end": "2025-07-01T00:00:00",
+      "period_instant": "2025-07-01T00:00:00",
+      "period_start": null,
+      "raw_decimals": "0",
+      "raw_unit": "{http://www.xbrl.org/2003/instance}shares",
+      "raw_value": "0"
+    }
+  ]
+}

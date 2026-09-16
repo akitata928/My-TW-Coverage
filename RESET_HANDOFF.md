@@ -33,7 +33,31 @@
    或 update_enrichment.py；每次變更後依規則做 audit，並視內容變更重建
    WIKILINKS.md、themes 與 network。
 3. 不要在沒有明確資料範圍與品質驗證前，直接對全部 1,733 份報告做 yfinance
-   refresh 或 AI enrichment；那會製造大 diff、成本與難以回溯的變化。
+refresh 或 AI enrichment；那會製造大 diff、成本與難以回溯的變化。
+
+## 2026-09-16 MOPS XBRL Phase 3A checkpoint
+
+- Draft PR #2 分支：`plan/mops-xbrl-test-development`。
+- Phase 3A SQLite migration、raw／semantic layer、產業 views、Python query 與去敏 multi-industry fixture 已完成；詳見 `docs/SQLITE_FINANCIAL_SCHEMA.md`。
+- SQLite／Python 分析介面已完成：`import-canonical` 可同時驗證 JSON／CSV 全欄位一致性，`query` 支援產業、ticker、報表期間、statement、期間角色、合併範圍、unit 與 quality status，另有 `quality` 報告與 Decimal/provenance 結果。
+- 離線驗證涵蓋 2330 一般產業、2882 金控、2801 銀行；SQLite `integrity_check=ok`、foreign key check 空、migration 可重跑且資料冪等。
+- 回歸驗證新增 JSON／CSV mismatch rejection、跨產業篩選、Decimal 彙總與 quality report；未知 mapping 維持 warning，不補零。
+- 尚未完成：保險／證券 fixture、完整 statement boundary／taxonomy label 語意驗證。bounded 2330＋金控＋銀行 live pilot 已完成；未下載全量資料，未修改 `Pilot_Reports/`。
+
+## 2026-09-16 MOPS financial mapping／bounded live pilot checkpoint
+
+- 使用 repo 外隔離 runtime：`~/.openclaw/data/my-tw-coverage/venv-xbrl`，`arelle-release==2.45.1`。
+- 2330、2882、2801 的 2026 Q2／report_id=C／`t164sb01` 官方回應均 HTTP 200；raw、normalized、canonical 與 SQLite 均在 `~/.openclaw/data/my-tw-coverage/`，未提交 Git。
+- 新增 `config/mops_financial_mapping.json`，registry `mops-tifrs-2026-09-pilot-1`；只做 exact local-name provisional anchors，unknown 不猜測。
+- 三家公司 numeric facts：2330 1,102、2882 957、2801 1,711；mapping coverage：2330 75 provisional／1,027 unknown、2882 102／855、2801 66／1,645。
+- SQLite pilot integrity=`ok`、foreign key check=`[]`、11 tables；quality warnings 3,734，全部來自 provisional／unknown mapping，沒有 missing values。
+- statement boundary 尚未由 `t164sb01` 可驗證切分，因此 live canonical 的 `statement_type`、`period_role`、`accumulation`、`restatement_status` 以 `unknown` 保存；不可宣稱三大報表 semantic Gate 已完成。
+- 後續覆核新增 exact-name statement anchors；目前分類結果為 2330：67 balance／8 income／8 cash flow／1,019 unknown，2882：106／4／8／839，2801：68／4／8／1,631。anchor 以外仍維持 unknown，不代表完整 statement boundary 已驗證。
+- 第二輪指定證券 6005 群益金鼎證券：2026 Q2／report_id=C／`t164sb01` HTTP 200，Arelle 2.45.1 解析 1,003 numeric facts；repo 外 round-2 SQLite `integrity_check=ok`、foreign key check 空，`v_securities_financials` 999 筆，Decimal/provenance 與重跑驗證通過。registry 已升版為 `mops-tifrs-2026-09-pilot-2`，證券專業 mapping 僅採觀察到的 exact local-name provisional anchors。
+- 原指定保險 5856 富邦人壽的官方端點回傳 invalid HTML「下載檔名或路徑不正確」；依 Stan 決定改用 2833 台灣人壽重新驗證，未繞過或猜測 5856。
+- 第二輪指定保險 2833 台灣人壽：2026 Q2／report_id=C／`t164sb01` HTTP 200，Arelle 2.45.1 解析 988 numeric facts、102 contexts、4 units；觀察到 IFRS 17／保險專業 QName，repo 外 round-2 SQLite `integrity_check=ok`、foreign key check 空，`v_insurance_financials` 與 Decimal/provenance 驗證通過。
+- 本輪 unittest：23 passed；`compileall`、`git diff --check` 通過。原始 2833／6005 XBRL、normalized／canonical／SQLite／venv 均在 repo 外，未修改 `Pilot_Reports/`。
+- 本機環境沒有 pytest 模組；已以 `compileall`、`git diff --check` 與獨立 SQLite smoke test 驗證。安裝測試套件前需另行確認。
 
 ## 新 session 入口
 

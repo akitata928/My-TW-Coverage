@@ -1,0 +1,35 @@
+[
+  {
+    "function_name": "t164sb01",
+    "report_id": "A",
+    "source_url": "https://mopsov.twse.com.tw/server-java/FileDownLoad?functionName=t164sb01&step=9&co_id=2330&year=2026&season=2&report_id=A",
+    "http_status": 200,
+    "content_length": 281,
+    "sha256": "f919882278e8869916e3f75ea0cc27fab0afeafb643ed3176f12a12814f51875",
+    "download_status": "invalid_html_response",
+    "parse_status": "not_run",
+    "interpretation": "MOPS error HTML; HTTP 200 is not a successful filing download."
+  },
+  {
+    "function_name": "t164sb02",
+    "report_id": "C",
+    "source_url": "https://mopsov.twse.com.tw/server-java/FileDownLoad?functionName=t164sb02&step=9&co_id=2330&year=2026&season=2&report_id=C",
+    "http_status": 200,
+    "content_length": 240,
+    "sha256": "52a8e18f356786f36e553968de4ee39114d829ac070bc3fe6d97672ce002c919",
+    "download_status": "invalid_html_response",
+    "parse_status": "not_run",
+    "interpretation": "MOPS error HTML; function variant not verified."
+  },
+  {
+    "function_name": "t164sb03",
+    "report_id": "C",
+    "source_url": "https://mopsov.twse.com.tw/server-java/FileDownLoad?functionName=t164sb03&step=9&co_id=2330&year=2026&season=2&report_id=C",
+    "http_status": 200,
+    "content_length": 240,
+    "sha256": "52a8e18f356786f36e553968de4ee39114d829ac070bc3fe6d97672ce002c919",
+    "download_status": "invalid_html_response",
+    "parse_status": "not_run",
+    "interpretation": "MOPS error HTML; function variant not verified."
+  }
+]
