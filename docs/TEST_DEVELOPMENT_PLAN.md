@@ -109,6 +109,7 @@
 - [x] 以 2330＋2882 國泰金＋2801 彰銀進行 2026 Q2／report_id=C／`t164sb01` 單季合併 instance live pilot；保險／證券列為第二輪。
 - [x] 建立版本化 exact-QName financial mapping registry；未列入 registry 的 concept 保留 `unknown` 並產生 quality warning。
 - [x] 以 repo 外 Arelle 2.45.1 解析三家公司，產出 canonical JSON／CSV 並匯入同一 SQLite。
+- [x] 對少數 exact QName anchors 產生局部 statement_type 分類；未命中 facts 維持 `unknown`，不推斷完整報表邊界。
 - [ ] 只有在 pilot 通過且取得獨立決策後，才提出更大範圍的季度更新方案。
 
 **Gate：** bounded live pilot 通過；三家公司來源、解析、canonical／SQLite integrity 與 mapping coverage 均有證據。仍不宣稱完整三大報表 semantic mapping：statement boundary、中文 taxonomy label 與未列入 registry 的 concept 維持 unknown／warning。詳見 `docs/PHASE5_PILOT.md`。

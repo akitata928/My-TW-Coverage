@@ -24,6 +24,12 @@ class FinancialMappingTests(unittest.TestCase):
     def test_braced_qname_keeps_namespace_and_local_name(self):
         self.assertEqual(MODULE._namespace("{urn:test}Assets"), ("urn:test", "Assets"))
 
+    def test_second_round_fixture_keeps_specialized_semantics_unknown(self):
+        path = ROOT / "tests/fixtures/mops_xbrl/second_round_industry_contract.sample.json"
+        rows = json.loads(path.read_text(encoding="utf-8"))
+        self.assertEqual({row["ticker"] for row in rows}, {"INS001", "SEC001"})
+        self.assertTrue(all(row["statement_type"] == "unknown" for row in rows))
+
 
 if __name__ == "__main__":
     unittest.main()

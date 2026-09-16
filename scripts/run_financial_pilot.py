@@ -16,6 +16,7 @@ import json
 import sys
 from collections import Counter
 from datetime import datetime, timezone
+from dataclasses import replace
 from pathlib import Path
 from typing import Any
 
@@ -73,6 +74,22 @@ def _coverage(payload: dict[str, Any], industry: str, registry: dict[tuple[str, 
     }
 
 
+def _statement_anchors(registry_path: Path) -> dict[str, set[str]]:
+    payload = json.loads(registry_path.read_text(encoding="utf-8"))
+    return {str(statement): {str(name) for name in names} for statement, names in payload.get("statement_type_anchors", {}).items()}
+
+
+def _classify_statements(facts: list[Any], registry_path: Path) -> list[Any]:
+    anchors = _statement_anchors(registry_path)
+    by_name = {name: statement for statement, names in anchors.items() for name in names}
+    result = []
+    for fact in facts:
+        local_name = fact.concept_qname.rsplit("}", 1)[-1]
+        statement = by_name.get(local_name, "unknown")
+        result.append(replace(fact, statement_type=statement))
+    return result
+
+
 def run(cache_root: Path, output_root: Path, db_path: Path, registry_path: Path) -> dict[str, Any]:
     output_root.mkdir(parents=True, exist_ok=True)
     registry = SQLITE.load_mapping_registry(registry_path)
@@ -104,6 +121,7 @@ def run(cache_root: Path, output_root: Path, db_path: Path, registry_path: Path)
             source_url=source_url,
             retrieved_at=_now(),
         )
+        facts = _classify_statements(facts, registry_path)
         json_path = output_root / "canonical" / f"{ticker}.json"
         csv_path = output_root / "canonical" / f"{ticker}.csv"
         digest = EMIT.write_outputs(facts, json_path, csv_path)
@@ -128,6 +146,7 @@ def run(cache_root: Path, output_root: Path, db_path: Path, registry_path: Path)
             "inserted": imported,
             "canonical_json_sha256": digest,
             "diagnostic_count": payload.get("metadata", {}).get("diagnostic_count"),
+            "statement_types": dict(sorted(Counter(fact.statement_type for fact in facts).items())),
             "mapping_coverage": _coverage(payload, job["industry_family"], registry),
         })
     manifest["integrity"] = SQLITE.integrity_report(db_path)

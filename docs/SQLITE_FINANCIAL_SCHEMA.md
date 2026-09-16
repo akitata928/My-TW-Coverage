@@ -39,6 +39,7 @@ MVP 不把 Perch 當成必要依賴，改以 SQLite 保存可追溯的 XBRL 原�
 - `statement_facts`：由 raw facts 投影出的分析事實，包含 statement_type、industry_family、report_scope、period_role、accumulation、concept_mapping_id、mapping_status。
 - `concept_mappings`：`source_qname → canonical_concept`，包含適用產業、taxonomy_version、mapping_version、effective_from／to、confidence、mapping_status 與人工註記。
 - 金融業 live pilot 使用 `config/mops_financial_mapping.json` 的版本化 registry；目前只接受 exact QName local-name 的保守 provisional anchors。未列入 registry 的 concept 維持 `unknown` 並產生 quality warning，不以中文名稱、子字串或數值猜測語意。
+- 同一 registry 另列少數 exact-name `statement_type_anchors`；這些只提供局部 statement 標記，不能取代官方 taxonomy／presentation linkbase。未命中的 fact 維持 `statement_type=unknown`。
 - `statement_templates`：各產業報表可呈現的概念集合、必要／選用規則、單位與期間條件。
 - `data_quality_issues`：unknown concept、缺值、單位衝突、期間衝突、重述、重複 fact、映射未驗證等問題。
 
@@ -87,6 +88,7 @@ Canonical concept 只代表已驗證的分析語意；沒有可信映射的 fact
 2. 以 2330（一般製造／科技）驗證既有 canonical facts 不退化。
 3. 再加入一家金控與一家銀行，驗證不同產業可共存且不互相污染。
 4. 保險與證券列為第二輪：保險需額外驗證 IFRS 17，證券需額外驗證經紀、承銷、自營與客戶保證金語意。
+   目前已提供 `tests/fixtures/mops_xbrl/second_round_industry_contract.sample.json` 作為去敏契約骨架；它刻意保留 specialized concepts 為 unknown，不代表已有正式保險／證券 mapping。
 5. 只有在上述 fixture、mapping、query、quality 與 provenance 測試通過後，才決定是否擴大 live pilot。
 
 本文件是 schema／資料契約規劃，不代表已完成金融業 parser 或已下載金融業正式財報。

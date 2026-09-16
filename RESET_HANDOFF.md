@@ -52,6 +52,7 @@ refresh 或 AI enrichment；那會製造大 diff、成本與難以回溯的變�
 - 三家公司 numeric facts：2330 1,102、2882 957、2801 1,711；mapping coverage：2330 75 provisional／1,027 unknown、2882 102／855、2801 66／1,645。
 - SQLite pilot integrity=`ok`、foreign key check=`[]`、11 tables；quality warnings 3,734，全部來自 provisional／unknown mapping，沒有 missing values。
 - statement boundary 尚未由 `t164sb01` 可驗證切分，因此 live canonical 的 `statement_type`、`period_role`、`accumulation`、`restatement_status` 以 `unknown` 保存；不可宣稱三大報表 semantic Gate 已完成。
+- 後續覆核新增 exact-name statement anchors；目前分類結果為 2330：67 balance／8 income／8 cash flow／1,019 unknown，2882：106／4／8／839，2801：68／4／8／1,631。anchor 以外仍維持 unknown，不代表完整 statement boundary 已驗證。
 - 本機環境沒有 pytest 模組；已以 `compileall`、`git diff --check` 與獨立 SQLite smoke test 驗證。安裝測試套件前需另行確認。
 
 ## 新 session 入口

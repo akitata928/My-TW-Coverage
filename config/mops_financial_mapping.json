@@ -4,6 +4,11 @@
   "taxonomy_namespace_prefix": "http://www.xbrl.org/tifrs/",
   "effective_from": "2026-01-01",
   "default_status": "unknown",
+  "statement_type_anchors": {
+    "balance_sheet": ["Assets", "Liabilities", "Equity", "FinancialAssetsAtAmortisedCost", "FinancialAssetsAtFairValueThroughOtherComprehensiveIncome", "DepositsFromCustomers", "LoansAndAdvancesToCustomers"],
+    "income_statement": ["Revenue", "GrossProfit", "InterestIncome", "InterestExpense"],
+    "cash_flow_statement": ["CashAndCashEquivalentsAtBeginningOfPeriod", "CashAndCashEquivalentsAtEndOfPeriod", "NetCashFlowsFromUsedInInvestingActivities", "CashFlowsFromUsedInFinancingActivities"]
+  },
   "notes": "Pilot registry only. Provisional mappings are conservative exact-name anchors and require official taxonomy/linkbase review before production use. Unknown concepts are retained and never inferred.",
   "mappings": [
     {"industry_family": "general_industrial", "local_name": "Assets", "canonical_concept": "assets", "status": "provisional", "notes": "Exact QName local-name anchor; semantic review pending."},
