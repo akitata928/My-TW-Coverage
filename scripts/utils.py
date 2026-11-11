@@ -133,6 +133,10 @@ WIKILINK_ALIASES = {
     "WIN Semi": "穩懋", "Walsin": "華新科",
     "日月光": "日月光投控", "臻鼎": "臻鼎-KY",
     "消費電子": "消費性電子", "儲能": "儲能系統",
+    # Same part under two names in the reports: heat pipe, liquid cooling, and
+    # the spelling of immersion cooling the term set used before the corpus
+    # showed it is never written that way.
+    "熱導管": "熱管", "液冷": "液冷散熱", "浸沒式散熱": "浸沒式冷卻",
     # Foreign companies: Chinese -> English
     "艾司摩爾": "ASML", "應用材料": "Applied Materials", "AMAT": "Applied Materials",
     "東京威力": "Tokyo Electron", "TEL": "Tokyo Electron",
@@ -180,8 +184,8 @@ TECH_TERMS = {
     "2.5D 封裝", "3D 封裝", "第三代半導體",
     "連接器", "被動元件",
     "散熱模組", "散熱片", "散熱鰭片", "散熱風扇", "散熱基板",
-    "均熱片", "均熱板", "熱管", "液冷散熱", "浸沒式散熱",
-    "導熱膏", "熱介面材料",
+    "均熱片", "均熱板", "均溫板", "熱管", "水冷板", "3D VC",
+    "液冷散熱", "浸沒式冷卻", "導熱膏", "熱介面材料",
 }
 
 MATERIAL_TERMS = {

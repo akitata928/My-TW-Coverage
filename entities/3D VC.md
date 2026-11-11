@@ -1,12 +1,12 @@
 ---
-type: taiwan_company
+type: technology
 mentions: 2
-reports: 1
+reports: 2
 ---
 
-# 熱導管
+# 3D VC
 
-台灣公司 · 1 份報告提及 · 共 2 次
+技術/標準 · 2 份報告提及 · 共 2 次
 
 ---
 
